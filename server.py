@@ -15,6 +15,8 @@ context = zmq.Context()
 print("Connecting to Falcon server…")
 socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
+# socket = context.socket(zmq.SUB)
+# socket.connect("tcp://localhost:5555")
 
 app = Flask(__name__)
 app.secret_key = env.get("APP_SECRET_KEY")
@@ -75,12 +77,13 @@ def updateSrc():
     srcPath = request.form["srcPath"]
 
     if srcIP and srcPath:
+
+        topic = "ls_src"
+        IP_addr = f'IP Address: {srcIP}'
+        file_path = f'Path: {srcPath}'
+
         print("Sending request ...")
-        socket.send_string(
-            f'Request Info\n'
-            f'IP Address: {srcIP}\n'
-            f'Path: {srcPath}'
-        )
+        socket.send_string("%s\n%s\n%s" % (topic, IP_addr, file_path))
 
         srcFiles = socket.recv_json()
         # print("Received reply %s" % message)
@@ -98,12 +101,12 @@ def updateDest():
     destPath = request.form["destPath"]
 
     if destIP and destPath:
+        topic = "ls_dest"
+        IP_addr = f'IP Address: {destIP}'
+        file_path = f'Path: {destPath}'
+
         print("Sending request ...")
-        socket.send_string(
-            f'Request Info\n'
-            f'IP Address: {destIP}\n'
-            f'Path: {destPath}'
-        )
+        socket.send_string("%s\n%s\n%s" % (topic, IP_addr, file_path))
 
         destFiles = socket.recv_json()
         # print("Received reply %s" % message)
@@ -112,6 +115,31 @@ def updateDest():
         destFiles = []
 
     return jsonify({'files': destFiles["DATA"]})
+
+
+@app.route('/transferFiles', methods=['POST'])
+def transferFiles():
+
+    srcIP = request.form["srcIP"]
+    srcPath = request.form["srcPath"]
+    destIP = request.form["destIP"]
+    destPath = request.form["destPath"]
+    selectedFiles = request.form.getlist("selectedFiles[]")
+
+    topic = "transfer_files"
+    src_IP_addr = f'Source IP Address: {srcIP}'
+    src_path = f'Source File Path: {srcPath}'
+    dest_IP_addr = f'Destination IP Address: {destIP}'
+    dest_path = f'Destination File Path: {destPath}'
+
+    print("Sending request ...")
+    socket.send_string("%s\n%s\n%s\n%s\n%s" % (topic, src_IP_addr, src_path, dest_IP_addr, dest_path))
+
+    transfer_status = socket.recv_string()
+    print(transfer_status)
+    file_data = jsonify({'data': selectedFiles})
+
+    return file_data
 
 
 if __name__ == "__main__":

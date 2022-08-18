@@ -126,10 +126,18 @@ socket.bind("tcp://*:5555")
 while True:
     try:
         message = socket.recv_string()
-        print("Received request: %s" % message)
+        topic = message.split('\n')[0]
+        
+        if topic == "transfer_files":
+          topic, src_IP_addr, src_path, dest_IP_addr, dest_path = message.split('\n')
+          print(f'-----Received Request-----\n{topic}\n{src_IP_addr}\n{src_path}\n{dest_IP_addr}\n{dest_path}')
+          socket.send_string("Transferring Files ...")
+        else:
+          topic, IP_addr, file_path = message.split('\n')
+          print(f'-----Received Request-----\n{topic}\n{IP_addr}\n{file_path}')
+          socket.send_json(file_data)
 
         time.sleep(1)
         
-        socket.send_json(file_data)
     except KeyboardInterrupt:
         break

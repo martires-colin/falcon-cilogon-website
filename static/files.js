@@ -106,6 +106,10 @@ $(document).ready(function() {
         
         $.ajax({
             data: {
+                srcIP: $('#srcIPInput').val(),
+                srcPath: $('#srcPathInput').val(),
+                destIP: $('#destIPInput').val(),
+                destPath: $('#destPathInput').val(),
                 selectedFiles: values
             },
             type: 'POST',
