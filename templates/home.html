@@ -3,7 +3,11 @@
 
 {% block title %}
     {% if session %}
+      {% if page == "Dashboard" %}
         Falcon - Dashboard
+      {% elif page == "UserInfo" %}
+        Falcon - User Info
+      {% endif %}
     {% else %}
         Login to Falcon
     {% endif %}
@@ -13,7 +17,11 @@
 {% block content %}
 
   {% if session %}
-    {% include 'dashboard.html' %}
+    {% if page == "Dashboard" %}
+      {% include 'dashboard.html' %}
+    {% elif page == "UserInfo" %}
+      {% include 'userInfo.html' %}
+    {% endif %}
   {% else %}
     {% include 'login.html' %}
   {% endif %}

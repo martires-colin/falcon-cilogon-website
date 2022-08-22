@@ -1,0 +1,135 @@
+<div class="container">
+
+    <div class="table-responsive">
+        <table class="table table-dark">
+            <thead>
+                <h1>Token Information</h1>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <th scope="row">access_token</th>
+                    <td>{{ session["access_token"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">expires_at</th>
+                    <td>{{ session["expires_at"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">expires_in</th>
+                    <td>{{ session["expires_in"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">id_token</th>
+                    <td>{{ session["id_token"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">scope</th>
+                    <td>{{ session["scope"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">token_type</th>
+                    <td>{{ session["token_type"] }}</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+    <div class="table-responsive">
+
+        <table class="table table-dark">
+            <thead>
+                <h1>User Information</h1>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">aud</th>
+                    <td>{{ session["userinfo"]["aud"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">email</th>
+                    <td>{{ session["userinfo"]["email"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">exp</th>
+                    <td>{{ session["userinfo"]["exp"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">family_name</th>
+                    <td>{{ session["userinfo"]["family_name"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">given_name</th>
+                    <td>{{ session["userinfo"]["given_name"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">acr</th>
+                    <td>{{ session["userinfo"]["https://cilogon.org/acr"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">affiliation</th>
+                    <td>{{ session["userinfo"]["https://cilogon.org/affiliation"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">cert_subject_dn</th>
+                    <td>{{ session["userinfo"]["https://cilogon.org/cert_subject_dn"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">eppn</th>
+                    <td>{{ session["userinfo"]["https://cilogon.org/eppn"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">eptid</th>
+                    <td>{{ session["userinfo"]["https://cilogon.org/eptid"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">idp</th>
+                    <td>{{ session["userinfo"]["https://cilogon.org/idp"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">idp_name</th>
+                    <td>{{ session["userinfo"]["https://cilogon.org/idp_name"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">iat</th>
+                    <td>{{ session["userinfo"]["iat"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">iss</th>
+                    <td>{{ session["userinfo"]["iss"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">name</th>
+                    <td>{{ session["userinfo"]["name"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">nickname</th>
+                    <td>{{ session["userinfo"]["nickname"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">nonce</th>
+                    <td>{{ session["userinfo"]["nonce"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">picture</th>
+                    <td>{{ session["userinfo"]["picture"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">sid</th>
+                    <td>{{ session["userinfo"]["sid"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">sub</th>
+                    <td>{{ session["userinfo"]["sub"] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">updated_at</th>
+                    <td>{{ session["userinfo"]["updated_at"] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

@@ -39,6 +39,7 @@ def home():
         "home.html",
         session=session.get("user"),
         pretty=json.dumps(session.get("user"), indent=4),
+        page="Dashboard"
     )
 
 @app.route("/callback", methods=["GET", "POST"])
@@ -68,6 +69,15 @@ def logout():
             quote_via=quote_plus,
         )
     )
+
+@app.route("/userInfo")
+def userInfo():
+    return render_template(
+            "home.html",
+            session=session.get("user"),
+            pretty=json.dumps(session.get("user"), indent=4),
+            page="UserInfo"
+        )
 
 
 @app.route('/updateSrc', methods=['POST'])
