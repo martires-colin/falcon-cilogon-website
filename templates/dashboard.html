@@ -6,15 +6,21 @@
     </div>
 
     <!-- Start Transfer Button -->
-    <div class="row">
+    <!-- <div class="row">
         <div class="container d-flex justify-content-center my-3">
             <button type="submit" class="btn btn-info" id="transferFiles" form="transferFilesForm">Start Transfer</button>
         </div>
-    </div>
-
-    <!-- Source -->
+    </div> -->
+    
     <div class="row">
-        <div class="container col-md-6" id="sourceContent">
+        <div class="container d-flex align-items-center col-md-2 order-md-2" style="height: 60vh" id="centerCol">
+            <div class="container d-flex justify-content-center my-3">
+                <button type="submit" class="btn btn-info" id="transferFiles" form="transferFilesForm">Start Transfer</button>
+            </div>
+        </div>
+
+        <!-- Source -->
+        <div class="container col-md-5 order-md-1" id="sourceContent">
             <div class="container" id="srcSearch">
                 <form action="#" method="post" id="srcForm">
                     <div class="d-flex flex-column">
@@ -48,8 +54,15 @@
             </div>
         </div>
 
+        <!-- Center Column / Start Transfer Button -->
+        <!-- <div class="container d-flex align-items-center col-md-2" style="height: 60vh" id="centerCol">
+            <div class="container d-flex justify-content-center my-3">
+                <button type="submit" class="btn btn-info" id="transferFiles" form="transferFilesForm">Start Transfer</button>
+            </div>
+        </div> -->
+
         <!-- Destination -->
-        <div class="container col-md-6" id="destContent">
+        <div class="container col-md-5 order-md-3" id="destContent">
             <div class="container" id="destSearch">
                 <form action="#" method="post" id="destForm">
                     <div class="d-flex flex-column">
