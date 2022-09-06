@@ -33,6 +33,7 @@ oauth.register(
     server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration',
 )
 
+
 @app.route("/")
 def home():
     return render_template(
@@ -42,17 +43,21 @@ def home():
         page="Dashboard"
     )
 
+
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
+    print(token)
     session["user"] = token
     return redirect("/")
+
 
 @app.route("/login")
 def login():
     return oauth.auth0.authorize_redirect(
         redirect_uri=url_for("callback", _external=True)
     )
+
 
 @app.route("/logout")
 def logout():
@@ -69,6 +74,7 @@ def logout():
             quote_via=quote_plus,
         )
     )
+
 
 @app.route("/userInfo")
 def userInfo():
