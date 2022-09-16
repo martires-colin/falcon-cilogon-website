@@ -12,12 +12,31 @@ body {
 .navbar {
     background-color: #F7FAFC !important;
     border-bottom: 1px solid rgb(227, 232, 238) !important;
+    /* border-bottom: 1px solid #A3ACB9 !important; */
 }
 
 .navbar-brand {
     color: #5469D4 !important;
 }
 
-.active {
-    background-color: red;
+input[type=text] {
+    border-style: solid;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: #A3ACB9;
+    padding: 4px;
 }
+
+#logBtn {
+    background-color: #FFFFFF;
+    border-color: #A3ACB9;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+    color: #3C4257;
+    line-height: 10px;
+}
+
+/* .active {
+    background-color: red;
+} */
