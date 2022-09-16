@@ -4,9 +4,18 @@ body {
     /* color: #5469D4; */
 }
 
-.btn {
+/* .btn {
     background-color: #5469D4 !important;
     border: 0 !important;
+} */
+
+#transferFiles {
+    background-color: transparent;
+    border-width: 0px;
+}
+
+#transferFiles:hover {
+    color: #5469D4 ;
 }
 
 .navbar {
