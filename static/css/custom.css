@@ -4,18 +4,20 @@ body {
     /* color: #5469D4; */
 }
 
-/* .btn {
+#loginPageBtn {
     background-color: #5469D4 !important;
     border: 0 !important;
-} */
+}
 
 #transferFiles {
     background-color: transparent;
     border-width: 0px;
+    transition: all .2s ease-in-out;
 }
 
 #transferFiles:hover {
     color: #5469D4 ;
+    transform: scale(1.1);
 }
 
 .navbar {
