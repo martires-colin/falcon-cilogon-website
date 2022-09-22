@@ -21,7 +21,7 @@ socket.connect("tcp://localhost:5555")
 # socket = context.socket(zmq.SUB)
 # socket.connect("tcp://localhost:5555")
 
-cluster = MongoClient("mongodb+srv://cmartires:46Against19!@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority")
+cluster = MongoClient(f'mongodb+srv://{env.get("MONGODB_USERNAME")}:{env.get("MONGODB_PASSWORD")}@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority')
 db = cluster["Falcon"]
 collection = db["transfer-data"]
 
@@ -86,7 +86,6 @@ def logout():
 
 @app.route("/userInfo")
 def userInfo():
-    print(session.get("user")["userinfo"]["name"])
     return render_template(
             "home.html",
             session=session.get("user"),
