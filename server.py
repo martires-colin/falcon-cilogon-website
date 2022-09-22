@@ -1,11 +1,14 @@
 import json
 import zmq
+import pymongo
+
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
-
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
+from pymongo import MongoClient
 from flask import Flask, redirect, render_template, session, url_for, request, jsonify
+
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -17,6 +20,11 @@ socket = context.socket(zmq.REQ)
 socket.connect("tcp://localhost:5555")
 # socket = context.socket(zmq.SUB)
 # socket.connect("tcp://localhost:5555")
+
+cluster = MongoClient("mongodb+srv://cmartires:46Against19!@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority")
+db = cluster["Falcon"]
+collection = db["transfer-data"]
+
 
 app = Flask(__name__)
 app.secret_key = env.get("APP_SECRET_KEY")
@@ -78,6 +86,7 @@ def logout():
 
 @app.route("/userInfo")
 def userInfo():
+    print(session.get("user")["userinfo"]["name"])
     return render_template(
             "home.html",
             session=session.get("user"),
@@ -155,8 +164,26 @@ def transferFiles():
     print(transfer_status)
     file_data = jsonify({'data': selectedFiles})
 
+    post = {
+        "user": session.get("user")["userinfo"]["name"],
+        "user_email": session.get("user")["userinfo"]["email"],
+        "affiliation": session.get("user")["userinfo"]["https://cilogon.org/idp_name"],
+        "srcIP": srcIP,
+        "srcPath": srcPath,
+        "destIP": destIP,
+        "destPath": destPath,
+        "selectedFiles": selectedFiles,
+        "timeOfTransfer": "12345 [temp val]",
+        "isCompleted": "false [temp val]",
+        "completionTime": "12345 [temp val]"
+        }
+    collection.insert_one(post)
+
     return file_data
 
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=env.get("PORT", 3000))
+
+
+
