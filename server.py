@@ -9,7 +9,6 @@ from dotenv import find_dotenv, load_dotenv
 from pymongo import MongoClient
 from flask import Flask, redirect, render_template, session, url_for, request, jsonify
 
-
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
@@ -21,9 +20,16 @@ socket.connect("tcp://localhost:5555")
 # socket = context.socket(zmq.SUB)
 # socket.connect("tcp://localhost:5555")
 
-cluster = MongoClient(f'mongodb+srv://{env.get("MONGODB_USERNAME")}:{env.get("MONGODB_PASSWORD")}@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority')
-db = cluster["Falcon"]
-collection = db["transfer-data"]
+# MongoDB Cloud implementation
+# cluster = MongoClient(f'mongodb+srv://{env.get("MONGODB_USERNAME")}:{env.get("MONGODB_PASSWORD")}@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority')
+# # cluster = MongoClient("mongodb+srv://cmartires:46Against19!@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority")
+# db = cluster["Falcon"]
+# collection = db["transfer_data"]
+
+db_client = MongoClient('localhost', 27017)
+# , username='{env.get("MONGODB_USERNAME")}', password='{env.get("MONGODB_PASSWORD")}
+db = db_client.falcon_db
+l_transfer_data = db.l_transfer_data
 
 
 app = Flask(__name__)
@@ -55,7 +61,7 @@ def home():
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
-    print(token)
+    # print(token)
     session["user"] = token
     return redirect("/")
 
@@ -176,7 +182,10 @@ def transferFiles():
         "isCompleted": "false [temp val]",
         "completionTime": "12345 [temp val]"
         }
-    collection.insert_one(post)
+
+    # cloud MongoDB
+    # collection.insert_one(post)
+    l_transfer_data.insert_one(post)
 
     return file_data
 
