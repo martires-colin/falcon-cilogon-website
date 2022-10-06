@@ -61,7 +61,6 @@ def home():
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
-    # print(token)
     session["user"] = token
     return redirect("/")
 
@@ -102,7 +101,8 @@ def account():
 
 @app.route("/history")
 def history():
-    cursor = l_transfer_data.find()
+    print('balls')
+    cursor = l_transfer_data.find().sort("epochTime", -1)
     list_cur = list(cursor)
     return render_template(
             "home.html",
@@ -160,7 +160,7 @@ def updateDest():
     return jsonify({'files': destFiles["DATA"]})
 
 
-@app.route('/transferFiles', methods=['POST'])
+@app.route('/transferFiles', methods=['POST', 'GET'])
 def transferFiles():
 
     srcIP = request.form["srcIP"]
@@ -206,7 +206,7 @@ def transferFiles():
     l_transfer_data.insert_one(post)
 
     return file_data
-
+    
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=env.get("PORT", 3000))

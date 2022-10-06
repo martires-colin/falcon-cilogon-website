@@ -117,6 +117,7 @@ $(document).ready(function() {
         })
         .done(function(data) {
             console.log(data)
+            location.href = "/history"
         });
         
         event.preventDefault()
