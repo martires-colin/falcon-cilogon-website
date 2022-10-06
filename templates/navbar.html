@@ -1,40 +1,3 @@
-<!-- <nav class="navbar navbar-expand-md pb-0 pt-1">
-    <div class="container-fluid">
-        <img
-            src="{{ url_for('static', filename='icons/icons8-falcon-32.png') }}"
-            alt="Website Icon"
-            width="30"
-            height="30"
-        />
-        <a class="navbar-brand mx-2" href="{{ url_for('home') }}">FALCON</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-
-                {% if session %}
-                    <!-- <li class="nav-item active"> -->
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('home') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('userInfo') }}">User Info</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    </li>
-                {% endif %}
-
-            </ul>
-        </div>
-    </div>
-</nav> -->
 <nav class="navbar navbar-expand-md px-3 py-1">
     <div class="container-fluid">
         <div class="d-flex flex-nowrap align-items-center">
@@ -52,29 +15,32 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mr-auto">
                     <!-- <li class="nav-item active"> -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('home') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('userInfo') }}">User Info</a>
-                    </li>
+                    {% if session %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('home') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('home') }}">History</a>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
 
         <div>
-            <ul class="navbar-nav mr-auto">
-
+            <ul class="navbar-nav mr-auto align-items-center">
                 {% if session %}
-                    <li class="nav-item">
-                        <a class="nav-link" id="logBtn" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('userInfo') }}">Account</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="logBtn" href="{{ url_for('logout') }}">Logout</a>
+                </li>
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link" id="logBtn" href="{{ url_for('login') }}">Login</a>
                     </li>
                 {% endif %}
-
             </ul>
         </div>
     </div>
