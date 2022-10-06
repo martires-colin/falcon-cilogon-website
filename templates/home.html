@@ -19,8 +19,10 @@
   {% if session %}
     {% if page == "Dashboard" %}
       {% include 'dashboard.html' %}
-    {% elif page == "UserInfo" %}
-      {% include 'userInfo.html' %}
+    {% elif page == "Account" %}
+      {% include 'account.html' %}
+    {% elif page == "History" %}
+      {% include 'history.html' %}
     {% endif %}
   {% else %}
     {% include 'login.html' %}

@@ -1,0 +1,31 @@
+<div class="container">
+    <div class="text-center mt-2">
+        <h1>File Transfer History</h1>
+    </div>
+    
+    {% for transfer in transferData %}
+
+        <div class="card m-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {{ transfer["srcIP"] }} to {{ transfer["destIP"] }}
+                </h5>
+                <h6 class="card-subtitle my-2 text-muted">
+                    {{ transfer["srcPath"] }} to {{ transfer["destPath"] }}
+                </h6>
+                <div>
+                    User: {{ transfer["user"] }}<br>
+                    Email: {{ transfer["user_email"] }}<br>
+                    Requested: {{ transfer["requestTime"] }}<br>
+                    Completion Time: {{ transfer["completionTime"] }}<br>
+                    Duration: {{ transfer["transferDuration"] }}<br>
+                    Status: {{ transfer["transferStatus"] }}
+                </div>
+            </div>
+        </div>
+
+    {% endfor %}
+
+</div>
+
+<!-- {{ transferData }} -->

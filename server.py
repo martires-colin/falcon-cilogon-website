@@ -1,6 +1,6 @@
 import json
 import zmq
-import pymongo
+import datetime
 
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
@@ -90,13 +90,26 @@ def logout():
     )
 
 
-@app.route("/userInfo")
-def userInfo():
+@app.route("/account")
+def account():
     return render_template(
             "home.html",
             session=session.get("user"),
             pretty=json.dumps(session.get("user"), indent=4),
-            page="UserInfo"
+            page="Account"
+        )
+
+
+@app.route("/history")
+def history():
+    cursor = l_transfer_data.find()
+    list_cur = list(cursor)
+    return render_template(
+            "home.html",
+            session=session.get("user"),
+            pretty=json.dumps(session.get("user"), indent=4),
+            page="History",
+            transferData=list_cur
         )
 
 
@@ -169,6 +182,9 @@ def transferFiles():
     print(transfer_status)
     file_data = jsonify({'data': selectedFiles})
 
+    epochTime = datetime.datetime.now().timestamp()
+    requestTime = datetime.datetime.now().strftime("%m/%d/%Y, %I:%M %p")
+
     post = {
         "user": session.get("user")["userinfo"]["name"],
         "user_email": session.get("user")["userinfo"]["email"],
@@ -178,9 +194,11 @@ def transferFiles():
         "destIP": destIP,
         "destPath": destPath,
         "selectedFiles": selectedFiles,
-        "timeOfTransfer": "12345 [temp val]",
-        "isCompleted": "false [temp val]",
-        "completionTime": "12345 [temp val]"
+        "epochTime":  epochTime,
+        "requestTime": requestTime,
+        "completionTime": "12345 [temp val]",
+        "transferDuration": "12345 [temp val]",
+        "transferStatus": "false [temp val]"
         }
 
     # cloud MongoDB
@@ -192,6 +210,3 @@ def transferFiles():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=env.get("PORT", 3000))
-
-
-
