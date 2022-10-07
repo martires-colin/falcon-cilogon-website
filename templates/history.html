@@ -7,19 +7,66 @@
 
         <div class="card m-4">
             <div class="card-body">
-                <h5 class="card-title">
+                <h5 class="card-title text-center">
                     {{ transfer["srcIP"] }} to {{ transfer["destIP"] }}
                 </h5>
-                <h6 class="card-subtitle my-2 text-muted">
+                <!-- <h6 class="card-subtitle my-2 text-muted text-center">
                     {{ transfer["srcPath"] }} to {{ transfer["destPath"] }}
-                </h6>
+                </h6> -->
+
                 <div>
-                    User: {{ transfer["user"] }}<br>
-                    Email: {{ transfer["user_email"] }}<br>
-                    Requested: {{ transfer["requestTime"] }}<br>
-                    Completion Time: {{ transfer["completionTime"] }}<br>
-                    Duration: {{ transfer["transferDuration"] }}<br>
-                    Status: {{ transfer["transferStatus"] }}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th scope="col">Source</th>
+                                <th scope="col">Destination</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">IP Address</th>
+                                <td>{{ transfer["srcIP"] }}</td>
+                                <td>{{ transfer["destIP"] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Directory</th>
+                                <td>{{ transfer["srcPath"] }}</td>
+                                <td>{{ transfer["destPath"] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">User</th>
+                                <td>{{ transfer["user"] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Email</th>
+                                <td>{{ transfer["user_email"] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Requested</th>
+                                <td>{{ transfer["requestTime"] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Completion Time</th>
+                                <td>{{ transfer["completionTime"] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Duration</th>
+                                <td>{{ transfer["transferDuration"] }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Status</th>
+                                <td>{{ transfer["transferStatus"] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

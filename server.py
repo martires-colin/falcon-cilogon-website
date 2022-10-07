@@ -198,7 +198,7 @@ def transferFiles():
         "requestTime": requestTime,
         "completionTime": "12345 [temp val]",
         "transferDuration": "12345 [temp val]",
-        "transferStatus": "false [temp val]"
+        "transferStatus": "In Progress [temp val]"
         }
 
     # cloud MongoDB

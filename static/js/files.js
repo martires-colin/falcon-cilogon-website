@@ -45,9 +45,6 @@ $(document).ready(function() {
         });
         event.preventDefault()
     });
-});
-
-$(document).ready(function() {
 
     $('#destForm').on('submit', function(event) {
 
@@ -93,9 +90,6 @@ $(document).ready(function() {
         });
         event.preventDefault()
     });
-});
-
-$(document).ready(function() {
 
     $('#transferFilesForm').submit(function(event) {
         let checkboxes = document.querySelectorAll('input[name="fileSelect"]:checked');
