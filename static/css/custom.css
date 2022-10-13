@@ -1,13 +1,7 @@
 body {
     /* background-color: #212121; */
     background-color: #FFFFFF;
-    /* background-color: pink; */
     /* color: #5469D4; */
-}
-
-#loginPageBtn {
-    background-color: #5469D4 !important;
-    border: 0 !important;
 }
 
 #transferFiles {
@@ -17,7 +11,7 @@ body {
 }
 
 #transferFiles:hover {
-    color: #5469D4 ;
+    color: #31adbe ;
     transform: scale(1.1);
 }
 
@@ -28,20 +22,22 @@ body {
 }
 
 .navbar-brand {
-    color: #5469D4 !important;
+    /* color: #5469D4 !important; */
+    color: #32548f !important;
 }
 
 input[type=text] {
     border-style: solid;
     border-radius: 8px;
     border-width: 1px;
-    border-color: #A3ACB9;
+    border-color: #00050c;
     padding: 4px;
 }
 
 #logBtn {
     background-color: #FFFFFF;
-    border-color: #A3ACB9;
+    /* border-color: #A3ACB9; */
+    border-color: #010914;
     border-style: solid;
     border-width: 1px;
     border-radius: 8px;
@@ -52,3 +48,25 @@ input[type=text] {
 /* .active {
     background-color: red;
 } */
+
+/* --- Landing Page --- */
+.hero {
+    color: white;
+    text-align: center;
+    padding: 15em 0;
+    background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}

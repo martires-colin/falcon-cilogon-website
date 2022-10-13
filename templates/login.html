@@ -1,7 +1,17 @@
 {% block content %}
 
-    <div class="container text-center mt-5">
-        <a id="loginPageBtn" class="btn btn-success" href="{{ url_for('login') }}" role="button">Login</a>
+<!-- <div class="container text-center mt-5">
+    <a id="loginPageBtn" class="btn btn-success" href="{{ url_for('login') }}" role="button">Login</a>
+</div> -->
+
+<header class="hero">
+    <div class="container">
+        <h1 class="mb-3">Falcon File Transfer</h1>
+        <p class="lead">
+            Falcon combines a game theory-inspired utility function with state-of-the-art online search algorithms to swiftly discover "just-enough" transfer settings to obtain near-optimal transfer throughput while lowering system overhead and improving fairness.
+        </p>
+        <a class="btn btn-light my-3" href="{{ url_for('login') }}" role="button">Login</a>
     </div>
+</header>
 
 {% endblock %}
