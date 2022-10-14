@@ -6,12 +6,84 @@
 
 <header class="hero">
     <div class="container">
-        <h1 class="mb-3">Falcon File Transfer</h1>
+        <h1>FALCON</h1>
+        <h4 class="mb-3">ONLINE HIGH-SPEED FILE TRANSFER OPTIMIZATION ALGORITHM</h3>
         <p class="lead">
             Falcon combines a game theory-inspired utility function with state-of-the-art online search algorithms to swiftly discover "just-enough" transfer settings to obtain near-optimal transfer throughput while lowering system overhead and improving fairness.
         </p>
         <a class="btn btn-light my-3" href="{{ url_for('login') }}" role="button">Login</a>
     </div>
 </header>
+
+<div class="main-container">
+    
+        <section class="banner" id="discover_banner">
+            <div class="container">
+                <div class="row">
+                    <h1 id="discover-heading">Speed.</h1>
+                    <div class="col-xs-12">
+                        <img src="../static/img/discover.png" alt="discover_figure" class="fig_img">
+                    </div>
+
+                    <div class="text-center mt-2">
+                        <p class="fs-5">Falcon can discover optimal transfer settings in as little as 20 seconds.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="banner" id="outperforms_banner">
+            <div class="container">
+                <div class="row">
+                    <h1 class="mb-3" id="discover-heading">Performance.</h1>
+                    <div class="col-xs-12 col-sm-6 col-md-5 col-md-offset-1 mbottom-10">
+                        <img src="../static/img/outperforms.png" alt="outperforms_figure" class="fig_img">
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-5 d-flex align-items-center">
+                        <p class="fs-5 px-4">Falcon outperforms existing transfer applications by up to an order of magnitude.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="banner" id="fairness_banner">
+            <div class="container">
+                <div class="row">
+                    <h1 id="discover-heading">Fairness.</h1>
+                    <div class="col-xs-12">
+                        <img src="../static/img/fairness.png" alt="fairness_figure" class="fig_img">
+                    </div>
+                    <div class="text-center mt-2">
+                        <p class="fs-4">Falcon ensures fairness among competing Falcon transfers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+</div>
+
+    <!-- <section class="figures">
+        <div class="container">
+            <article class="fig">
+                <h3 class="fig_title">Hairy</h3>
+                <p class="fig_description"></p>
+                <img src="../static/img/discover.png" alt="" class="fig_img">
+            </article>
+            <article class="fig">
+                <h3 class="fig_title">Ball</h3>
+                <p class="fig_description"></p>
+                <img src="../static/img/fairness.png" alt="" class="fig_img">
+            </article>
+            <article class="fig">
+                <h3 class="fig_title">Sack</h3>
+                <p class="fig_description"></p>
+                <img src="../static/img/outperforms.png" alt="" class="fig_img">
+            </article>
+        </div>
+    </section> -->
+
+
+<footer class="my-3 text-center">
+    <p class="lead">High Performance Computing and Networking Lab @ University of Nevada, Reno</p>
+</footer>
+
 
 {% endblock %}
