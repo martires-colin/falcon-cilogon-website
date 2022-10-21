@@ -101,8 +101,7 @@ def account():
 
 @app.route("/history")
 def history():
-    print('balls')
-    cursor = l_transfer_data.find().sort("epochTime", -1)
+    cursor = l_transfer_data.find({"user_email": session["user"]["userinfo"]["email"]}).sort("epochTime", -1)
     list_cur = list(cursor)
     return render_template(
             "home.html",
