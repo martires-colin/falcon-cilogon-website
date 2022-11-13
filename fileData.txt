@@ -115,3 +115,5 @@
   "symlink_supported": false,
   "total": 7
 }
+
+git merge test
