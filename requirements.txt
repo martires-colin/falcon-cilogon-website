@@ -5,3 +5,4 @@ requests>=2.27.1
 pymongo[srv]>=4.2.0
 setuptools==63.2.0
 pyzmq==24.0.1
+Flask-pyoidc>=3.11.0

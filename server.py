@@ -9,6 +9,14 @@ from dotenv import find_dotenv, load_dotenv
 from pymongo import MongoClient
 from flask import Flask, redirect, render_template, session, url_for, request, jsonify
 
+
+#------------------CILogon OIDC---------------------------------------------------------------------------#
+from flask_pyoidc import OIDCAuthentication
+from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMetadata, ProviderMetadata
+from flask_pyoidc.user_session import UserSession
+#---------------------------------------------------------------------------------------------------------#
+
+
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
@@ -20,32 +28,41 @@ socket.connect("tcp://localhost:5555")
 # socket = context.socket(zmq.SUB)
 # socket.connect("tcp://localhost:5555")
 
-# MongoDB Cloud implementation
-# cluster = MongoClient(f'mongodb+srv://{env.get("MONGODB_USERNAME")}:{env.get("MONGODB_PASSWORD")}@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority')
-# # cluster = MongoClient("mongodb+srv://cmartires:46Against19!@cluster0.74uzvj4.mongodb.net/?retryWrites=true&w=majority")
-# db = cluster["Falcon"]
-# collection = db["transfer_data"]
-
 db_client = MongoClient('localhost', 27017)
-# , username='{env.get("MONGODB_USERNAME")}', password='{env.get("MONGODB_PASSWORD")}
 db = db_client.falcon_db
 l_transfer_data = db.l_transfer_data
 
 
 app = Flask(__name__)
+app.config.update(
+    SECRET_KEY=env.get("APP_SECRET_KEY"),
+    OIDC_REDIRECT_URI=env.get("OIDC_REDIRECT_URI")
+)
 app.secret_key = env.get("APP_SECRET_KEY")
 
-oauth = OAuth(app)
+# Static Client/Provider Registration
+client_metadata = ClientMetadata(
+    client_id=env.get("CILOGON_CLIENT_ID"),
+    client_secret=env.get("CILOGON_CLIENT_SECRET"),
+    post_logout_redirect_uris=['https://localhost:3000/logout'])
 
-oauth.register(
-    "auth0",
-    client_id=env.get("AUTH0_CLIENT_ID"),
-    client_secret=env.get("AUTH0_CLIENT_SECRET"),
-    client_kwargs={
-        "scope": "openid profile email",
-    },
-    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration',
-)
+provider_metadata = ProviderMetadata(
+    issuer='https://idp.example.com',
+    authorization_endpoint='https://cilogon.org/authorize',
+    token_endpoint='https://cilogon.org/oauth2/token',
+    introspection_endpoint='https://cilogon.org/oauth2/introspect',
+    userinfo_endpoint='https://cilogon.org/oauth2/userinfo',
+    #end_session_endpoint='https://idp.example.com/logout',
+    jwks_uri='https://cilogon.org/oauth2/certs',
+    registration_endpoint='https://cilogon.org/oauth2/register')
+
+auth_params = {'scope': ['openid', 'profile', 'email']} # specify the scope to request
+provider_config = ProviderConfiguration(
+    provider_metadata=provider_metadata,
+    client_metadata=client_metadata,
+    auth_request_params=auth_params)
+
+auth = OIDCAuthentication({'CILogon': provider_config}, app)
 
 
 @app.route("/")
@@ -66,11 +83,15 @@ def callback():
 
 
 @app.route("/login")
+@auth.oidc_auth('CILogon')
 def login():
-    return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for("callback", _external=True)
-    )
-
+    user_session = UserSession(flask.session)
+    return jsonify(access_token=user_session.access_token,
+                   id_token=user_session.id_token,
+                   userinfo=user_session.userinfo)
+    # return oauth.auth0.authorize_redirect(
+    #     redirect_uri=url_for("callback", _external=True)
+    # )
 
 @app.route("/logout")
 def logout():
