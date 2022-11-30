@@ -38,7 +38,7 @@ app.config.update(
     SECRET_KEY=env.get("APP_SECRET_KEY"),
     OIDC_REDIRECT_URI=env.get("OIDC_REDIRECT_URI")
 )
-app.secret_key = env.get("APP_SECRET_KEY")
+# app.secret_key = env.get("APP_SECRET_KEY")
 
 # Static Client/Provider Registration
 client_metadata = ClientMetadata(
@@ -47,7 +47,7 @@ client_metadata = ClientMetadata(
     post_logout_redirect_uris=['https://localhost:3000/logout'])
 
 provider_metadata = ProviderMetadata(
-    issuer='https://idp.example.com',
+    issuer='https://cilogon.org',
     authorization_endpoint='https://cilogon.org/authorize',
     token_endpoint='https://cilogon.org/oauth2/token',
     introspection_endpoint='https://cilogon.org/oauth2/introspect',
@@ -56,7 +56,7 @@ provider_metadata = ProviderMetadata(
     jwks_uri='https://cilogon.org/oauth2/certs',
     registration_endpoint='https://cilogon.org/oauth2/register')
 
-auth_params = {'scope': ['openid', 'profile', 'email']} # specify the scope to request
+auth_params = {'scope': ['openid', 'profile', 'email', 'org.cilogon.userinfo']} # specify the scope to request
 provider_config = ProviderConfiguration(
     provider_metadata=provider_metadata,
     client_metadata=client_metadata,
@@ -69,65 +69,78 @@ auth = OIDCAuthentication({'CILogon': provider_config}, app)
 def home():
     return render_template(
         "home.html",
-        session=session.get("user"),
-        pretty=json.dumps(session.get("user"), indent=4),
+        session=session,
+        page="Dashboard"
+    )
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template(
+        "home.html",
+        session=session["userinfo"],
         page="Dashboard"
     )
 
 
-@app.route("/callback", methods=["GET", "POST"])
-def callback():
-    token = oauth.auth0.authorize_access_token()
-    session["user"] = token
-    return redirect("/")
+# @app.route("/callback", methods=["GET", "POST"])
+# def callback():
+#     # token = oauth.auth0.authorize_access_token()
+#     # session["user"] = token
+#     return redirect("/")
 
 
 @app.route("/login")
 @auth.oidc_auth('CILogon')
 def login():
-    user_session = UserSession(flask.session)
-    return jsonify(access_token=user_session.access_token,
-                   id_token=user_session.id_token,
-                   userinfo=user_session.userinfo)
+    user_session = UserSession(session)
+    print(user_session)
+    print(session)
+    return redirect(url_for("dashboard"))
+
+    # return jsonify(access_token=user_session.access_token,
+    #                id_token=user_session.id_token,
+    #                userinfo=user_session.userinfo)
     # return oauth.auth0.authorize_redirect(
     #     redirect_uri=url_for("callback", _external=True)
     # )
 
 @app.route("/logout")
+@auth.oidc_logout
 def logout():
     session.clear()
-    return redirect(
-        "https://"
-        + env.get("AUTH0_DOMAIN")
-        + "/v2/logout?"
-        + urlencode(
-            {
-                "returnTo": url_for("home", _external=True),
-                "client_id": env.get("AUTH0_CLIENT_ID"),
-            },
-            quote_via=quote_plus,
-        )
-    )
+    return redirect(url_for("home"))
+    # return redirect(
+    #     "https://"
+    #     + env.get("AUTH0_DOMAIN")
+    #     + "/v2/logout?"
+    #     + urlencode(
+    #         {
+    #             "returnTo": url_for("home", _external=True),
+    #             "client_id": env.get("AUTH0_CLIENT_ID"),
+    #         },
+    #         quote_via=quote_plus,
+    #     )
+    # )
 
 
 @app.route("/account")
 def account():
     return render_template(
             "home.html",
-            session=session.get("user"),
-            pretty=json.dumps(session.get("user"), indent=4),
+            name=session["userinfo"]["name"],
+            email=session["userinfo"]["email"],
+            affiliation=session["userinfo"]["idp_name"],
             page="Account"
         )
 
 
 @app.route("/history")
 def history():
-    cursor = l_transfer_data.find({"user_email": session["user"]["userinfo"]["email"]}).sort("epochTime", -1)
+    cursor = l_transfer_data.find({"user_email": session["userinfo"]["email"]}).sort("epochTime", -1)
     list_cur = list(cursor)
     return render_template(
             "home.html",
-            session=session.get("user"),
-            pretty=json.dumps(session.get("user"), indent=4),
+            session=session["userinfo"],
             page="History",
             transferData=list_cur
         )
