@@ -57,12 +57,17 @@ provider_metadata = ProviderMetadata(
     registration_endpoint='https://cilogon.org/oauth2/register')
 
 auth_params = {'scope': ['openid', 'profile', 'email', 'org.cilogon.userinfo']} # specify the scope to request
+
 provider_config = ProviderConfiguration(
     provider_metadata=provider_metadata,
     client_metadata=client_metadata,
     auth_request_params=auth_params)
 
-auth = OIDCAuthentication({'CILogon': provider_config}, app)
+auth = OIDCAuthentication({
+    'CILogon': provider_config,
+    "Site1": provider_config,
+    "Site2": provider_config
+    }, app)
 
 
 @app.route("/")
@@ -92,9 +97,9 @@ def dashboard():
 @app.route("/login")
 @auth.oidc_auth('CILogon')
 def login():
-    user_session = UserSession(session)
-    print(user_session)
-    print(session)
+    # user_session = UserSession(session)
+    # print(user_session)
+    print(f'Logged in as {session["userinfo"]["name"]}')
     return redirect(url_for("dashboard"))
 
     # return jsonify(access_token=user_session.access_token,
@@ -103,6 +108,25 @@ def login():
     # return oauth.auth0.authorize_redirect(
     #     redirect_uri=url_for("callback", _external=True)
     # )
+
+
+@app.route("/loginSite1")
+@auth.oidc_auth('Site1')
+def loginSite1():
+    # site1_session = UserSession(session)
+    print(f'Site 1: {session["userinfo"]["idp_name"]}')
+    print(f'Acceess Token: {session["access_token"]}')
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/loginSite2")
+@auth.oidc_auth('Site2')
+def loginSite2():
+    # site1_session = UserSession(session)
+    print(f'Site 2: {session["userinfo"]["idp_name"]}')
+    print(f'Acceess Token: {session["access_token"]}')
+    return redirect(url_for("dashboard"))
+
 
 @app.route("/logout")
 @auth.oidc_logout
