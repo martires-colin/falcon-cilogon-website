@@ -1,5 +1,5 @@
 import json
-import zmq
+import pika
 import datetime
 
 from os import environ as env
@@ -8,7 +8,6 @@ from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from pymongo import MongoClient
 from flask import Flask, redirect, render_template, session, url_for, request, jsonify
-
 
 #------------------CILogon OIDC---------------------------------------------------------------------------#
 from flask_pyoidc import OIDCAuthentication
@@ -21,12 +20,34 @@ ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
-context = zmq.Context()
-print("Connecting to Falcon server…")
-socket = context.socket(zmq.REQ)
-socket.connect("tcp://localhost:5555")
+#------------------------OLD ZeroMQ-----------------#
+# context = zmq.Context()
+# print("Connecting to Falcon server…")
+# socket = context.socket(zmq.REQ)
+# socket.connect("tcp://localhost:5555")
 # socket = context.socket(zmq.SUB)
 # socket.connect("tcp://localhost:5555")
+#------------------------OLD ZeroMQ-----------------#
+
+
+# import pika
+
+# connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+# channel = connection.channel()
+
+# channel.queue_declare(queue='hello')
+
+# channel.basic_publish(
+#     exchange='',
+#     routing_key='hello',
+#     body='Hello World!'
+# )
+# print(" [x] Sent 'Hello World!")
+
+# connection.close()
+
+
+
 
 db_client = MongoClient('localhost', 27017)
 db = db_client.falcon_db
@@ -38,7 +59,7 @@ app.config.update(
     SECRET_KEY=env.get("APP_SECRET_KEY"),
     OIDC_REDIRECT_URI=env.get("OIDC_REDIRECT_URI")
 )
-# app.secret_key = env.get("APP_SECRET_KEY")
+
 
 # Static Client/Provider Registration
 client_metadata = ClientMetadata(
@@ -100,6 +121,23 @@ def login():
     # user_session = UserSession(session)
     # print(user_session)
     print(f'Logged in as {session["userinfo"]["name"]}')
+    print(session)
+
+    #Send access token to Falcon nodes through RabbitMQ
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='access-token')
+
+    channel.basic_publish(
+        exchange='',
+        routing_key='access-token',
+        body=session["access_token"]
+    )
+    print(" [x] Sent access token to falcon nodes")
+
+    connection.close()
+
     return redirect(url_for("dashboard"))
 
     # return jsonify(access_token=user_session.access_token,
