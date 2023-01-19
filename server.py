@@ -30,25 +30,6 @@ if ENV_FILE:
 #------------------------OLD ZeroMQ-----------------#
 
 
-# import pika
-
-# connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-# channel = connection.channel()
-
-# channel.queue_declare(queue='hello')
-
-# channel.basic_publish(
-#     exchange='',
-#     routing_key='hello',
-#     body='Hello World!'
-# )
-# print(" [x] Sent 'Hello World!")
-
-# connection.close()
-
-
-
-
 db_client = MongoClient('localhost', 27017)
 db = db_client.falcon_db
 l_transfer_data = db.l_transfer_data
@@ -123,16 +104,33 @@ def login():
     print(f'Logged in as {session["userinfo"]["name"]}')
     print(session)
 
+    payload = {
+        "access_token": session["access_token"],
+        "id_token_jwt": session["id_token_jwt"]    
+    }
+
+    # TODO: ADD CREDENTIALS TO .env
+    credentials = pika.PlainCredentials(
+        username='cmart',
+        password='46Against19!',
+        erase_on_connect=True
+    )
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        host='35.93.147.38',
+        port=5672,
+        virtual_host='demo',
+        credentials=credentials
+    ))
+
     #Send access token to Falcon nodes through RabbitMQ
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
     channel = connection.channel()
 
-    channel.queue_declare(queue='access-token')
+    channel.queue_declare(queue='access_token')
 
     channel.basic_publish(
         exchange='',
-        routing_key='access-token',
-        body=session["access_token"]
+        routing_key='access_token',
+        body=json.dumps(payload)
     )
     print(" [x] Sent access token to falcon nodes")
 
