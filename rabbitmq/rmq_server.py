@@ -1,6 +1,6 @@
 # RabbitMQ communication for Falcon server
 
-from config_rabbitmq import configurations
+from rabbitmq.config_rabbitmq import configurations
 from uuid import uuid4
 import json
 import pika
