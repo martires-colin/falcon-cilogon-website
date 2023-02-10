@@ -90,6 +90,7 @@ def execute_request(props, body):
     if message["command"] == "list":
         directory_list = os.listdir(message["argument"])
         response = ",".join(directory_list)
+        
 
     elif message["command"] == "transfer":
         print(f" [x] Initiating transfer of {message['argument']}")

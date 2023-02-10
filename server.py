@@ -15,6 +15,7 @@ from flask_pyoidc.provider_configuration import ProviderConfiguration, ClientMet
 from flask_pyoidc.user_session import UserSession
 #---------------------------------------------------------------------------------------------------------#
 
+from rabbitmq import rmq_server as rmq
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -109,32 +110,35 @@ def login():
         "id_token_jwt": session["id_token_jwt"]    
     }
 
-    # TODO: ADD CREDENTIALS TO .env
-    credentials = pika.PlainCredentials(
-        username='cmart',
-        password='46Against19!',
-        erase_on_connect=True
-    )
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='35.93.147.38',
-        port=5672,
-        virtual_host='demo',
-        credentials=credentials
-    ))
+    # # TODO: ADD CREDENTIALS TO .env
+    # credentials = pika.PlainCredentials(
+    #     username='cmart',
+    #     password='46Against19!',
+    #     erase_on_connect=True
+    # )
+    # connection = pika.BlockingConnection(pika.ConnectionParameters(
+    #     host='35.93.147.38',
+    #     port=5672,
+    #     virtual_host='demo',
+    #     credentials=credentials
+    # ))
 
-    #Send access token to Falcon nodes through RabbitMQ
-    channel = connection.channel()
+    # #Send access token to Falcon nodes through RabbitMQ
+    # channel = connection.channel()
 
-    channel.queue_declare(queue='access_token')
+    # channel.queue_declare(queue='access_token')
 
-    channel.basic_publish(
-        exchange='',
-        routing_key='access_token',
-        body=json.dumps(payload)
-    )
-    print(" [x] Sent access token to falcon nodes")
+    # channel.basic_publish(
+    #     exchange='',
+    #     routing_key='access_token',
+    #     body=json.dumps(payload)
+    # )
+    # print(" [x] Sent access token to falcon nodes")
 
-    connection.close()
+    # connection.close()
+
+    node_id = "1234"
+    rmq.send_access_token(node_id, payload)
 
     return redirect(url_for("dashboard"))
 
@@ -213,19 +217,26 @@ def updateSrc():
     srcPath = request.form["srcPath"]
 
     if srcIP and srcPath:
-
-        topic = "ls_src"
-        IP_addr = f'IP Address: {srcIP}'
-        file_path = f'Path: {srcPath}'
-
+        
         print("Sending request ...")
-        socket.send_string("%s\n%s\n%s" % (topic, IP_addr, file_path))
+        directory = "/home"
+        node_id = "1234"
+        srcFiles = rmq.send_request(node_id, "list", srcPath)
 
-        srcFiles = socket.recv_json()
+
+        # topic = "ls_src"
+        # IP_addr = f'IP Address: {srcIP}'
+        # file_path = f'Path: {srcPath}'
+
+        # socket.send_string("%s\n%s\n%s" % (topic, IP_addr, file_path))
+
+        # srcFiles = socket.recv_json()
         # print("Received reply %s" % message)
         # srcFiles = getFiles(srcCollection, srcPath)
     else:
         srcFiles = []
+
+    # print(srcFiles)
 
     return jsonify({'files': srcFiles["DATA"]})
 
