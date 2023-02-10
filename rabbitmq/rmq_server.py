@@ -1,5 +1,6 @@
 # RabbitMQ communication for Falcon server
 
+# added rabbitmq. fo server.py can find the config file ~Colin
 from rabbitmq.config_rabbitmq import configurations
 from uuid import uuid4
 import json

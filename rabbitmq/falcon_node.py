@@ -88,8 +88,14 @@ def execute_request(props, body):
     message = json.loads(body.decode())
 
     if message["command"] == "list":
-        directory_list = os.listdir(message["argument"])
-        response = ",".join(directory_list)
+        # directory_list = os.listdir(message["argument"])
+        # response = ",".join(directory_list)
+        
+        # temporary file formatting to send to Falcon Web Server ~Colin
+        response = []
+        for file in os.listdir(message["argument"]):
+            response.append(file)
+        
         
 
     elif message["command"] == "transfer":
@@ -103,7 +109,8 @@ def execute_request(props, body):
     channel.basic_publish(
         exchange="", routing_key=props.reply_to, 
         properties=pika.BasicProperties(correlation_id=props.correlation_id),
-        body=response
+        # body=response
+        body=json.dumps(response) # temporarily changed this ~Colin
     )
         
     connection.close()

@@ -142,13 +142,6 @@ def login():
 
     return redirect(url_for("dashboard"))
 
-    # return jsonify(access_token=user_session.access_token,
-    #                id_token=user_session.id_token,
-    #                userinfo=user_session.userinfo)
-    # return oauth.auth0.authorize_redirect(
-    #     redirect_uri=url_for("callback", _external=True)
-    # )
-
 
 @app.route("/loginSite1")
 @auth.oidc_auth('Site1')
@@ -173,18 +166,6 @@ def loginSite2():
 def logout():
     session.clear()
     return redirect(url_for("home"))
-    # return redirect(
-    #     "https://"
-    #     + env.get("AUTH0_DOMAIN")
-    #     + "/v2/logout?"
-    #     + urlencode(
-    #         {
-    #             "returnTo": url_for("home", _external=True),
-    #             "client_id": env.get("AUTH0_CLIENT_ID"),
-    #         },
-    #         quote_via=quote_plus,
-    #     )
-    # )
 
 
 @app.route("/account")
@@ -238,7 +219,8 @@ def updateSrc():
 
     # print(srcFiles)
 
-    return jsonify({'files': srcFiles["DATA"]})
+    # return jsonify({'files': srcFiles["DATA"]})
+    return jsonify({'files': srcFiles})
 
 
 @app.route('/updateDest', methods=['POST'])
@@ -248,20 +230,26 @@ def updateDest():
     destPath = request.form["destPath"]
 
     if destIP and destPath:
-        topic = "ls_dest"
-        IP_addr = f'IP Address: {destIP}'
-        file_path = f'Path: {destPath}'
+        # topic = "ls_dest"
+        # IP_addr = f'IP Address: {destIP}'
+        # file_path = f'Path: {destPath}'
 
-        print("Sending request ...")
-        socket.send_string("%s\n%s\n%s" % (topic, IP_addr, file_path))
+        # print("Sending request ...")
+        # socket.send_string("%s\n%s\n%s" % (topic, IP_addr, file_path))
 
-        destFiles = socket.recv_json()
+        # destFiles = socket.recv_json()
         # print("Received reply %s" % message)
         # srcFiles = getFiles(srcCollection, srcPath)
+
+        print("Sending request ...")
+        directory = "/home"
+        node_id = "1234"
+        destFiles = rmq.send_request(node_id, "list", destPath)
     else:
         destFiles = []
 
-    return jsonify({'files': destFiles["DATA"]})
+    # return jsonify({'files': destFiles["DATA"]})
+    return jsonify({'files': destFiles})
 
 
 @app.route('/transferFiles', methods=['POST', 'GET'])
