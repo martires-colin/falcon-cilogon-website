@@ -8,6 +8,7 @@ from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from pymongo import MongoClient
 from flask import Flask, redirect, render_template, session, url_for, request, jsonify
+from flask_session import Session
 
 #------------------CILogon OIDC---------------------------------------------------------------------------#
 from flask_pyoidc import OIDCAuthentication
@@ -21,27 +22,19 @@ ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
-#------------------------OLD ZeroMQ-----------------#
-# context = zmq.Context()
-# print("Connecting to Falcon server…")
-# socket = context.socket(zmq.REQ)
-# socket.connect("tcp://localhost:5555")
-# socket = context.socket(zmq.SUB)
-# socket.connect("tcp://localhost:5555")
-#------------------------OLD ZeroMQ-----------------#
-
-
+# Connect to local MongoDB database
 db_client = MongoClient('localhost', 27017)
 db = db_client.falcon_db
 l_transfer_data = db.l_transfer_data
 
-
 app = Flask(__name__)
 app.config.update(
     SECRET_KEY=env.get("APP_SECRET_KEY"),
-    OIDC_REDIRECT_URI=env.get("OIDC_REDIRECT_URI")
+    OIDC_REDIRECT_URI=env.get("OIDC_REDIRECT_URI"),
+    SESSION_TYPE="filesystem",
+    SESSION_PERMANENT=False
 )
-
+sess = Session(app)
 
 # Static Client/Provider Registration
 client_metadata = ClientMetadata(
@@ -102,43 +95,38 @@ def dashboard():
 def login():
     # user_session = UserSession(session)
     # print(user_session)
-    print(f'Logged in as {session["userinfo"]["name"]}')
-    print(session)
-
-    payload = {
+    session['user_info'] = {
+        "full_name": session["userinfo"]["name"],
+        "email": session["userinfo"]["email"],
+        "idp_name": session["userinfo"]["idp_name"],
         "access_token": session["access_token"],
-        "id_token_jwt": session["id_token_jwt"]    
+        "id_token_jwt": session["id_token_jwt"]
+    }
+    session['site1_info'] = {
+        "full_name": None, 
+        "email": None, 
+        "idp_name": None, 
+        "access_token": None, 
+        "id_token_jwt": None 
+    }
+    session['site2_info'] = {
+        "full_name": None,
+        "email": None, 
+        "idp_name": None, 
+        "access_token": None,
+        "id_token_jwt": None 
     }
 
-    # # TODO: ADD CREDENTIALS TO .env
-    # credentials = pika.PlainCredentials(
-    #     username='cmart',
-    #     password='46Against19!',
-    #     erase_on_connect=True
-    # )
-    # connection = pika.BlockingConnection(pika.ConnectionParameters(
-    #     host='35.93.147.38',
-    #     port=5672,
-    #     virtual_host='demo',
-    #     credentials=credentials
-    # ))
+    print(f'Logged in as {session["user_info"]["full_name"]}')
+    print(session["user_info"])
 
-    # #Send access token to Falcon nodes through RabbitMQ
-    # channel = connection.channel()
+    # payload = {
+    #     "access_token": session["access_token"],
+    #     "id_token_jwt": session["id_token_jwt"]    
+    # }
 
-    # channel.queue_declare(queue='access_token')
-
-    # channel.basic_publish(
-    #     exchange='',
-    #     routing_key='access_token',
-    #     body=json.dumps(payload)
-    # )
-    # print(" [x] Sent access token to falcon nodes")
-
-    # connection.close()
-
-    node_id = "1234"
-    rmq.send_access_token(node_id, payload)
+    # node_id = "1234"
+    # rmq.send_access_token(node_id, payload)
 
     return redirect(url_for("dashboard"))
 
@@ -147,8 +135,16 @@ def login():
 @auth.oidc_auth('Site1')
 def loginSite1():
     # site1_session = UserSession(session)
-    print(f'Site 1: {session["userinfo"]["idp_name"]}')
-    print(f'Acceess Token: {session["access_token"]}')
+    session['site1_info'] = {
+        "full_name": session["userinfo"]["name"],
+        "email": session["userinfo"]["email"],
+        "idp_name": session["userinfo"]["idp_name"],
+        "access_token": session["access_token"],
+        "id_token_jwt": session["id_token_jwt"]
+    }
+    # print(f'Site 1: {session["userinfo"]["idp_name"]}')
+    # print(f'Acceess Token: {session["access_token"]}')
+    # print(session)
     return redirect(url_for("dashboard"))
 
 
@@ -156,25 +152,43 @@ def loginSite1():
 @auth.oidc_auth('Site2')
 def loginSite2():
     # site1_session = UserSession(session)
-    print(f'Site 2: {session["userinfo"]["idp_name"]}')
-    print(f'Acceess Token: {session["access_token"]}')
+    session['site2_info'] = {
+        "full_name": session["userinfo"]["name"],
+        "email": session["userinfo"]["email"],
+        "idp_name": session["userinfo"]["idp_name"],
+        "access_token": session["access_token"],
+        "id_token_jwt": session["id_token_jwt"]
+    }
+    # print(f'Site 2: {session["userinfo"]["idp_name"]}')
+    # print(f'Acceess Token: {session["access_token"]}')
+    # print(session)
     return redirect(url_for("dashboard"))
 
 
 @app.route("/logout")
 @auth.oidc_logout
 def logout():
+    print(session)
     session.clear()
     return redirect(url_for("home"))
 
 
 @app.route("/account")
 def account():
+    print(session["user_info"])
+    print(session["site1_info"])
+    print(session["site2_info"])
     return render_template(
             "home.html",
-            name=session["userinfo"]["name"],
-            email=session["userinfo"]["email"],
-            affiliation=session["userinfo"]["idp_name"],
+            name=session["user_info"]["full_name"],
+            email=session["user_info"]["email"],
+            affiliation=session["user_info"]["idp_name"],
+            site1_name=session["site1_info"]["full_name"],
+            site1_email=session["site1_info"]["email"],
+            site1_affiliation=session["site1_info"]["idp_name"],
+            site2_name=session["site2_info"]["full_name"],
+            site2_email=session["site2_info"]["email"],
+            site2_affiliation=session["site2_info"]["idp_name"],
             page="Account"
         )
 
