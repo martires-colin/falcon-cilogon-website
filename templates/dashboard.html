@@ -1,5 +1,7 @@
 {% block content %}
 
+{% import 'test_component.html' as test_component %}
+
 <div class="container">
     <div class="row">
         <h1 class="text-center mt-4">File Transfer Portal</h1>
@@ -91,6 +93,165 @@
             </div>
         </div>
     </div>
+
+    <h1>---------------------------------------------------------</h1>
+
+    <div class="row">
+
+        <!-- If jwt tokens exist for Site1 and Site2, render start transfer button -->
+        {% if site1_info["id_token_jwt"] and site2_info["id_token_jwt"] %}
+        
+        <!-- Start Transfer Button -->
+        <div class="container d-flex align-items-center col-md-1 order-md-2 p-0 m-0" style="height: 60vh" id="centerCol">
+            <div class="container d-flex flex-column justify-content-center my-3 p-0 m-0">
+                <div class="row justify-content-center">
+                    <button type="submit" class="btn w-75 h-75" id="transferFiles" form="transferFilesForm" name="transferFiles">
+                        <p style="text-align: center;">Start Transfer</p>
+                        <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" fill="currentColor" class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/>
+                        </svg>       
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+
+
+
+ 
+
+        <!-- Source -->
+        <div class="container col-md-5 order-md-1" id="sourceContent">
+            <div class="d-flex flex-column">
+                <h3 class="text-center">Site 1</h3>
+                {% if not site1_info["id_token_jwt"] %}
+                    <a class="btn btn-info m-3" href="{{ url_for('loginSite1') }}">Site 1 Login</a>
+                {% else %}
+                    <p>{{ site1_info["idp_name"] }}</p>
+                    <form action="#" method="post" id="site1_IP_form">
+                        <input class="flex-grow-1 mb-3" type="text" name="site1_IP" id="site1_IP_input"
+                        placeholder="IP Address" required/>
+                        <input type="submit" value="Enter IP" id="site1_IP_submit" />
+                    </form>
+
+                    <div class="container" id="site1_details">
+
+                    </div>
+
+                {% endif %}
+            </div>
+
+
+<!-- 
+            <div class="container" id="srcSearch">
+                <form action="#" method="post" id="srcForm">
+                    <div class="d-flex flex-column">
+                        <h3 class="text-center">Site 1</h3>
+                        <a class="btn btn-info m-3" href="{{ url_for('loginSite1') }}">Site 1 Login</a>
+                        <input class="flex-grow-1 mb-3" type="text" name="srcIP" id="srcIPInput"
+                            placeholder="IP Address" />
+                        <input class="flex-grow-1 mb-3" type="text" name="srcPath" id="srcPathInput" placeholder="Path" />
+                    </div>
+                    <div class="d-flex justify-content-center mb-3">
+                        <input type="submit" value="List Files" id="srcSubmit" />
+                    </div>
+                </form>
+            </div>
+            <div class="container" id="srcFileDisplay" style="display: none;">
+                <div class="overflow-auto" style="max-height: 450px;">
+                    <table class="table table-hover table-light">
+                        <thead style="position: sticky;top: 0">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Last Modified</th>
+                                <th scope="col">Size</th>
+                            </tr>
+                        </thead>
+                        <form action="#" method="post" id="transferFilesForm">
+                            <tbody id="srcTable">
+                            </tbody>
+                        </form>
+                    </table>
+                </div>
+            </div> -->
+        </div> 
+
+        <div class="container col-md-5 order-md-3" id="destContent">
+            <div class="d-flex flex-column">
+                <h3 class="text-center">Site 2</h3>
+                {% if not site2_info["id_token_jwt"] %}
+                    <a class="btn btn-info m-3" href="{{ url_for('loginSite2') }}">Site 2 Login</a>
+                {% else %}
+                    <p>{{ site2_info["idp_name"] }}</p>
+                    <form action="#" method="post" id="site2_IP_form">
+                        <input class="flex-grow-1 mb-3" type="text" name="site1_IP" id="site2_IP_input"
+                        placeholder="IP Address" required/>
+                        <input type="submit" value="Enter IP" id="site2_IP_submit" />
+                    </form>
+
+                    <div class="container" id="site2_details">
+                        
+                    </div>
+
+                {% endif %}
+            </div>
+        </div>
+
+
+        <!-- Destination -->
+        <!-- <div class="container col-md-5 order-md-3" id="destContent">
+            <div class="container" id="destSearch">
+                <form action="#" method="post" id="destForm">
+                    <div class="d-flex flex-column">
+                        <h3 class="text-center">Site 2</h3>
+                        <a class="btn btn-info m-3" href="{{ url_for('loginSite2') }}">Site 2 Login</a>
+                        <input class="flex-grow-1 mb-3" type="text" name="destIP" id="destIPInput"
+                            placeholder="IP Address" />
+                        <input class="flex-grow-1 mb-3" type="text" name="destPath" id="destPathInput" placeholder="Path" />
+                    </div>
+                    <div class="d-flex justify-content-center mb-3">
+                        <input type="submit" value="List Files" id="destSubmit" />
+                    </div>
+                </form>
+            </div>
+            <div class="container" id="destFileDisplay" style="display: none;">
+                <div class="overflow-auto" style="max-height: 450px;">
+                    <table class="table table-hover table-light">
+                        <thead style="position: sticky;top: 0">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Last Modified</th>
+                                <th scope="col">Size</th>
+                            </tr>
+                        </thead>
+                        <tbody id="destTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div> -->
+        </div>
+    </div>
+<!----------------------------------Component Testing----------------------------------------------->
+
+<!-- {% if site1_info["id_token_jwt"] %}
+    <div class="row">
+        {{ test_component }}
+        <div class="">{{ user_info }}</div>
+        <div class="">{{ site1_info }}</div>
+        <div class="">{{ site2_info }}</div>
+        <div class="">{{ site2_info["id_token_jwt"] }}</div>
+
+    </div>
+{% endif %} -->
+
+<!----------------------------------Component Testing----------------------------------------------->
+
+
+
 </div>
 
 {% endblock %}

@@ -17,6 +17,7 @@ from flask_pyoidc.user_session import UserSession
 #---------------------------------------------------------------------------------------------------------#
 
 from rabbitmq import rmq_server as rmq
+from threading import Thread
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -26,6 +27,7 @@ if ENV_FILE:
 db_client = MongoClient('localhost', 27017)
 db = db_client.falcon_db
 l_transfer_data = db.l_transfer_data
+idp_ips = db.idp_ips
 
 app = Flask(__name__)
 app.config.update(
@@ -65,6 +67,11 @@ auth = OIDCAuthentication({
     "Site2": provider_config
     }, app)
 
+# Create thread to handle manage_connections
+daemon = Thread(
+    target=rmq.manage_connections, daemon=True, name=f"manage_falcon_connections"
+)
+daemon.start()
 
 @app.route("/")
 def home():
@@ -78,23 +85,16 @@ def home():
 def dashboard():
     return render_template(
         "home.html",
-        session=session["userinfo"],
+        user_info=session["user_info"],
+        site1_info=session["site1_info"],
+        site2_info=session["site2_info"],
         page="Dashboard"
     )
-
-
-# @app.route("/callback", methods=["GET", "POST"])
-# def callback():
-#     # token = oauth.auth0.authorize_access_token()
-#     # session["user"] = token
-#     return redirect("/")
 
 
 @app.route("/login")
 @auth.oidc_auth('CILogon')
 def login():
-    # user_session = UserSession(session)
-    # print(user_session)
     session['user_info'] = {
         "full_name": session["userinfo"]["name"],
         "email": session["userinfo"]["email"],
@@ -134,7 +134,6 @@ def login():
 @app.route("/loginSite1")
 @auth.oidc_auth('Site1')
 def loginSite1():
-    # site1_session = UserSession(session)
     session['site1_info'] = {
         "full_name": session["userinfo"]["name"],
         "email": session["userinfo"]["email"],
@@ -142,16 +141,28 @@ def loginSite1():
         "access_token": session["access_token"],
         "id_token_jwt": session["id_token_jwt"]
     }
-    # print(f'Site 1: {session["userinfo"]["idp_name"]}')
-    # print(f'Acceess Token: {session["access_token"]}')
-    # print(session)
+    print(f'Site 1 Info\n{session["site1_info"]}')
+
+# --------TODO: Send id_token_jwt to Falcon Node after verifying idp_ip mapping---------
+    # node_ip = "1234"
+    # payload = {
+    #     "access_token": session["access_token"],
+    #     "id_token_jwt": session["id_token_jwt"]    
+    # }
+    # # json.dumps(payload)
+    # daemon = Thread(
+    #     target=rmq.make_request, args=(node_ip, "verify", json.dumps(payload)), 
+    #     daemon=True, name=f"{node_ip}_send_jwt"
+    # )
+    # daemon.start()
+# --------------------------------------------------------------------------------
+
     return redirect(url_for("dashboard"))
 
 
 @app.route("/loginSite2")
 @auth.oidc_auth('Site2')
 def loginSite2():
-    # site1_session = UserSession(session)
     session['site2_info'] = {
         "full_name": session["userinfo"]["name"],
         "email": session["userinfo"]["email"],
@@ -159,9 +170,22 @@ def loginSite2():
         "access_token": session["access_token"],
         "id_token_jwt": session["id_token_jwt"]
     }
-    # print(f'Site 2: {session["userinfo"]["idp_name"]}')
-    # print(f'Acceess Token: {session["access_token"]}')
-    # print(session)
+    print(f'Site 2 Info\n{session["site2_info"]}')
+
+# --------TODO: Send id_token_jwt to Falcon Node after verifying idp_ip mapping---------
+    # node_ip = "1234"
+    # payload = {
+    #     "access_token": session["access_token"],
+    #     "id_token_jwt": session["id_token_jwt"]    
+    # }
+    # # json.dumps(payload)
+    # daemon = Thread(
+    #     target=rmq.make_request, args=(node_ip, "verify", json.dumps(payload)), 
+    #     daemon=True, name=f"{node_ip}_send_jwt"
+    # )
+    # daemon.start()
+# --------------------------------------------------------------------------------
+
     return redirect(url_for("dashboard"))
 
 
@@ -203,6 +227,41 @@ def history():
             page="History",
             transferData=list_cur
         )
+
+
+@app.route('/site1_ip', methods=['POST'])
+def site1_ip():
+    site1_ip = request.form["site1_IP"]
+    
+    # verify ip_idp mapping and set session variables
+    if idp_ips.count_documents({"idp": session["site1_info"]["idp_name"], "ips": {"$in": [site1_ip]}}) != 0:
+        print("Valid IP address")
+        isValidIP = True
+        session["site1_info"]["valid_ip"] = True
+    else:
+        print("Invalid IP address")
+        isValidIP = False    
+        session["site1_info"]["valid_ip"] = False
+
+    return jsonify({'is_valid_ip': isValidIP})
+
+
+@app.route('/site2_ip', methods=['POST'])
+def site2_ip():
+    site2_ip = request.form["site2_IP"]
+    
+    # verify ip_idp mapping and set session variables
+    if idp_ips.count_documents({"idp": session["site2_info"]["idp_name"], "ips": {"$in": [site2_ip]}}) != 0:
+        print("Valid IP address")
+        isValidIP = True
+        session["site2_info"]["valid_ip"] = True
+    else:
+        print("Invalid IP address")
+        isValidIP = False    
+        session["site2_info"]["valid_ip"] = False
+
+    return jsonify({'is_valid_ip': isValidIP})
+
 
 
 @app.route('/updateSrc', methods=['POST'])
