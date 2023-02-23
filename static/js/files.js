@@ -179,10 +179,14 @@ $(document).ready(function() {
 
             if (!data.is_valid_ip) {
                 alert("IP not found in database")
+                const site1_details = document.getElementById("site1_details")
+                const newP = document.createElement("p")
+                newP.append("Invalid IP Address")
+                site1_details.replaceChildren(newP)
             } else {
                 const site1_details = document.getElementById("site1_details")
                 const newP = document.createElement("p")
-                newP.append(data.is_valid_ip)
+                newP.append("Valid IP Address")
                 site1_details.replaceChildren(newP)
             }
         })
@@ -205,10 +209,14 @@ $(document).ready(function() {
 
             if (!data.is_valid_ip) {
                 alert("IP not found in database")
+                const site2_details = document.getElementById("site2_details")
+                const newP = document.createElement("p")
+                newP.append("Invalid IP Address")
+                site2_details.replaceChildren(newP)
             } else {
                 const site2_details = document.getElementById("site2_details")
                 const newP = document.createElement("p")
-                newP.append(data.is_valid_ip)
+                newP.append("Valid IP Address")
                 site2_details.replaceChildren(newP)
             }
         })

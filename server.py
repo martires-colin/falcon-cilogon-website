@@ -143,20 +143,6 @@ def loginSite1():
     }
     print(f'Site 1 Info\n{session["site1_info"]}')
 
-# --------TODO: Send id_token_jwt to Falcon Node after verifying idp_ip mapping---------
-    # node_ip = "1234"
-    # payload = {
-    #     "access_token": session["access_token"],
-    #     "id_token_jwt": session["id_token_jwt"]    
-    # }
-    # # json.dumps(payload)
-    # daemon = Thread(
-    #     target=rmq.make_request, args=(node_ip, "verify", json.dumps(payload)), 
-    #     daemon=True, name=f"{node_ip}_send_jwt"
-    # )
-    # daemon.start()
-# --------------------------------------------------------------------------------
-
     return redirect(url_for("dashboard"))
 
 
@@ -171,20 +157,6 @@ def loginSite2():
         "id_token_jwt": session["id_token_jwt"]
     }
     print(f'Site 2 Info\n{session["site2_info"]}')
-
-# --------TODO: Send id_token_jwt to Falcon Node after verifying idp_ip mapping---------
-    # node_ip = "1234"
-    # payload = {
-    #     "access_token": session["access_token"],
-    #     "id_token_jwt": session["id_token_jwt"]    
-    # }
-    # # json.dumps(payload)
-    # daemon = Thread(
-    #     target=rmq.make_request, args=(node_ip, "verify", json.dumps(payload)), 
-    #     daemon=True, name=f"{node_ip}_send_jwt"
-    # )
-    # daemon.start()
-# --------------------------------------------------------------------------------
 
     return redirect(url_for("dashboard"))
 
@@ -238,6 +210,17 @@ def site1_ip():
         print("Valid IP address")
         isValidIP = True
         session["site1_info"]["valid_ip"] = True
+
+        # Send id_token_jwt to Falcon Node for verification
+        payload = {
+            "access_token": session["site1_info"]["access_token"],
+            "id_token_jwt": session["site1_info"]["id_token_jwt"]   
+        }
+        daemon = Thread(
+            target=rmq.make_request, args=(site1_ip, "verify", json.dumps(payload)), 
+            daemon=True, name=f"{site1_ip}_send_jwt"
+        )
+        daemon.start()
     else:
         print("Invalid IP address")
         isValidIP = False    
@@ -255,6 +238,17 @@ def site2_ip():
         print("Valid IP address")
         isValidIP = True
         session["site2_info"]["valid_ip"] = True
+
+        # Send id_token_jwt to Falcon Node for verification
+        payload = {
+            "access_token": session["site2_info"]["access_token"],
+            "id_token_jwt": session["site2_info"]["id_token_jwt"]   
+        }
+        daemon = Thread(
+            target=rmq.make_request, args=(site2_ip, "verify", json.dumps(payload)), 
+            daemon=True, name=f"{site2_ip}_send_jwt"
+        )
+        daemon.start()
     else:
         print("Invalid IP address")
         isValidIP = False    
