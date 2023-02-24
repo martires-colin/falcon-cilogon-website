@@ -75,6 +75,7 @@ daemon.start()
 
 @app.route("/")
 def home():
+    print(session)
     return render_template(
         "home.html",
         session=session,

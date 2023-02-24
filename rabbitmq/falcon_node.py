@@ -2,6 +2,7 @@
 
 from config_rabbitmq import configurations
 from threading import Thread
+import requests
 import json
 import time
 import pika
@@ -9,139 +10,161 @@ import sys
 import jwt
 import os
 
+
 credentials = pika.PlainCredentials(
-    username=configurations["user"], 
-    password=configurations["password"], 
+    username=configurations["user"], password=configurations["password"], 
     erase_on_connect=True
 )
 parameters = pika.ConnectionParameters(
-    host=configurations["host"], 
-    port=configurations["port"], 
-    virtual_host=configurations["vhost"], 
-    credentials=credentials
+    host=configurations["host"], port=configurations["port"], 
+    virtual_host=configurations["vhost"], credentials=credentials
 )
 
-id = "1234" # TODO: choose node id
-connection_message = {"id": id} # TODO: add all node details
-connection_message = json.dumps(connection_message)
+ip = "1.2.3.4" #requests.get('https://checkip.amazonaws.com').text.strip()
 
 
-def authenticate_node(channel):
-    channel.basic_consume(
-        queue=id, on_message_callback=authentication_callback
-    )
-    print(" [x] Waiting for authentication")
-    channel.start_consuming()
+class Consumer:
+    def __init__(self):
+        self.verified = "-1"
 
 
-def authentication_callback(ch, method, properties, body):
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-
-    message = json.loads(body.decode())
-    id_token_jwt = jwt.decode(
-        message["id_token_jwt"], 
-        options={"verify_signature": False}
-    )
-
-    # TODO: authenticate node
-
-    ch.stop_consuming()
-    print(f" [x] Authentication complete for {id_token_jwt['idp_name']}")
+    def on_request(self, ch, method, props, body):
+        daemon = Thread(
+            target=self.execute_request, args=(props, body), daemon=True, 
+            name="falcon_request"
+        )
+        daemon.start()
 
 
-def update_connection(channel):
-    connection_queue = "connections"
-    channel.basic_publish(
-        exchange="", 
-        routing_key=connection_queue, 
-        body=connection_message
-    )
-    print(" [x] Sent connection update to server")
+    def execute_request(self, props, body):
+        request = json.loads(body.decode())
 
+        if request["command"] == "verify":
+            response = self.verify_connection(request["argument"])
+        elif self.verified != "0":
+            response = json.dumps({"error": "Node is unverified."})
+        elif request["command"] == "list":
+            response = self.list_files(request["argument"])
+        elif request["command"] == "transfer":
+            response = self.transfer_files(request["argument"], request["argument2"])
 
-def manage_requests():
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()
 
-    channel.queue_declare(queue=id)
-    channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(
-        queue=id, 
-        on_message_callback=request_callback
-    )
+        channel.basic_publish(
+            exchange="", routing_key=props.reply_to, body=response,
+            properties=pika.BasicProperties(correlation_id=props.correlation_id)
+        )
 
-    print(" [x] Awaiting messages from Falcon user server")
-    channel.start_consuming()
-
-
-def request_callback(ch, method, props, body):
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-    daemon = Thread(
-        target=execute_request, 
-        args=(props, body), 
-        daemon=True, name="falcon_request"
-    )
-    daemon.start()
-
-
-def execute_request(props, body):
-    message = json.loads(body.decode())
-
-    if message["command"] == "list":
-        # directory_list = os.listdir(message["argument"])
-        # response = ",".join(directory_list)
+        connection.close()
         
-        # temporary file formatting to send to Falcon Web Server ~Colin
-        response = []
-        for file in os.listdir(message["argument"]):
-            response.append(file)
-        
+        if self.verified == "0":
+            output = {
+                "verify": " [x] Verified connection with Falcon server.",
+                "list": f" [x] Listed contents of {request['argument']}.",
+                "transfer": f" [x] Completed transfer to {request['argument']}."
+            }
+            print(output[request["command"]])
         
 
-    elif message["command"] == "transfer":
-        print(f" [x] Initiating transfer of {message['argument']}")
+    def verify_connection(self, access_token):
+        access_token = json.loads(access_token)
+        id_token_jwt = jwt.decode(
+            access_token["id_token_jwt"], options={"verify_signature": False}
+        )
+
+        # TODO: verify jwt
+
+        self.verified = "0"
+        if self.verified != "0":
+            pass # TODO: handle failed verification
+
+        return json.dumps({"verification_result": self.verified})
+            
+
+    def list_files(self, directory):
+        data_list = []
+        for file in os.listdir(directory):
+            file_path = os.path.join(directory, file)
+            is_dir = os.path.isdir(file_path)
+
+            file_data = {
+                "DATA_TYPE": "file",
+                "name": file,
+                "type": "dir" if is_dir else "file",
+                "user": ip,
+                "last_modified": time.ctime(os.path.getmtime(file_path)),
+                "size": self.get_directory_size(file_path) if is_dir \
+                    else os.path.getsize(file_path)
+            }
+            data_list.append(file_data)
+
+        response = {
+            "DATA_TYPE": "file_list",
+            "path": directory,
+            "DATA": data_list
+        }
+
+        return json.dumps(response)
+
+
+    def get_directory_size(self, start_path):
+        total_size = 0
+        for dirpath, dirnames, filenames in os.walk(start_path):
+            for f in filenames:
+                fp = os.path.join(dirpath, f)
+                # skip if it is symbolic link
+                if not os.path.islink(fp):
+                    total_size += os.path.getsize(fp)
+
+        return total_size
+
+
+    def transfer_files(self, receiver_ip, files):
+        print(f" [x] Initiating transfer to {receiver_ip}")
+
+        all_files = []
+        for file in files.split(","):
+            for dirpath, dirnames, filenames in os.walk(file):
+                for filename in filenames:
+                    all_files.append(os.path.join(dirpath, filename))
+
         time.sleep(5) # TODO: start file transfer
-        response = "0" # TODO: generate response
 
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
-
-    channel.basic_publish(
-        exchange="", routing_key=props.reply_to, 
-        properties=pika.BasicProperties(correlation_id=props.correlation_id),
-        # body=response
-        body=json.dumps(response) # temporarily changed this ~Colin
-    )
-        
-    connection.close()
-    if message["command"] == "list":
-        print(f" [x] Listed contents of {message['argument']}")
-    elif message["command"] == "transfer":
-        print(f" [x] Completed transfer of {message['argument']}")
+        return json.dumps({"transfer_result": "0"}) # TODO: generate response
 
 
 if __name__ == '__main__':
     try:
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
-        
-        authenticate_node(channel)
 
-        daemon = Thread(
-            target=manage_requests, daemon=True, name="falcon_request_manager"
+
+        ### Send connection message to server
+        connection_message = {
+            "ip": ip,
+            "status": "online"
+            # TODO: add all node details 
+        }
+        connection_message = json.dumps(connection_message)
+
+        connection_queue = "connections"
+        channel.basic_publish(
+            exchange="", routing_key=connection_queue, body=connection_message
         )
-        daemon.start()
+        print(" [x] Connected to the Falcon server.")
 
-        while True:
-            update_connection(channel)
-            time.sleep(30)
+
+        ### Consume and execute requests
+        consumer = Consumer()
+        channel.queue_declare(queue=ip)
+        channel.basic_consume(
+            queue=ip, auto_ack=True, on_message_callback=consumer.on_request
+        )
+        print(" [x] Waiting for messages from Falcon server...")
+        channel.start_consuming()
         
-    except KeyboardInterrupt:
-        print(" [x] Falcon node was interrupted")
-        try:
-            connection.close()
-            sys.exit(0)
 
-        except SystemExit:
-            connection.close()
-            os._exit(0)
+    except KeyboardInterrupt:
+        print(" [x] Falcon node was interrupted.")
+        sys.exit(0)
