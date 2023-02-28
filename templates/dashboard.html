@@ -138,8 +138,35 @@
                         <input type="submit" value="Enter IP" id="site1_IP_submit" />
                     </form>
 
-                    <div class="container" id="site1_details">
-
+                    <!-- display if ip valid [TEMPORARY] -->
+                    <div class="container" id="site1_details"></div>
+                    
+                    <!-- Display files after list request is sent -->
+                    <form action="#" method="post" id="srcForm" style="display: none;">
+                        <div class="d-flex flex-column">
+                            <input class="flex-grow-1 mb-3" type="text" name="srcPath" id="srcPathInput" placeholder="Path" />
+                        </div>
+                        <div class="d-flex justify-content-center mb-3">
+                            <input type="submit" value="List Files" id="srcSubmit" />
+                        </div>
+                    </form>
+                    <div class="container" id="srcFileDisplay" style="display: none;">
+                        <div class="overflow-auto" style="max-height: 450px;">
+                            <table class="table table-hover table-light">
+                                <thead style="position: sticky;top: 0">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Last Modified</th>
+                                        <th scope="col">Size</th>
+                                    </tr>
+                                </thead>
+                                <form action="#" method="post" id="transferFilesForm">
+                                    <tbody id="srcTable">
+                                    </tbody>
+                                </form>
+                            </table>
+                        </div>
                     </div>
 
                 {% endif %}
@@ -194,10 +221,36 @@
                         <input type="submit" value="Enter IP" id="site2_IP_submit" />
                     </form>
 
-                    <div class="container" id="site2_details">
-                        
+                    <!-- display if ip valid [TEMPORARY] -->
+                    <div class="container" id="site2_details"></div>
+                    
+                    <!-- Display files after list request is sent -->
+                    <form action="#" method="post" id="destForm" style="display: none;">
+                        <div class="d-flex flex-column">
+                            <input class="flex-grow-1 mb-3" type="text" name="destPath" id="destPathInput" placeholder="Path" />
+                        </div>
+                        <div class="d-flex justify-content-center mb-3">
+                            <input type="submit" value="List Files" id="destSubmit" />
+                        </div>
+                    </form>
+                    <div class="container" id="destFileDisplay" style="display: none;">
+                        <div class="overflow-auto" style="max-height: 450px;">
+                            <table class="table table-hover table-light">
+                                <thead style="position: sticky;top: 0">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Last Modified</th>
+                                        <th scope="col">Size</th>
+                                    </tr>
+                                </thead>
+                                <form action="#" method="post" id="transferFilesForm">
+                                    <tbody id="destTable">
+                                    </tbody>
+                                </form>
+                            </table>
+                        </div>
                     </div>
-
                 {% endif %}
             </div>
         </div>

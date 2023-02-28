@@ -9,61 +9,36 @@ $(document).ready(function() {
             url: '/updateSrc'
         })
         .done(function(data) {
+            console.log(data)
+
             const tableData = document.getElementById("srcTable")
             tableData.textContent = ''
 
-            // data.files.forEach(file => {
+            data.files.forEach(file => {
 
-            //     const newTableEntry = document.createElement("tr")
-            //     const newCheckBox = document.createElement("td")
-            //     const newFileName = document.createElement("td")
-            //     const newFileLastMod = document.createElement("td")
-            //     const newFileSize = document.createElement("td")
+                const newTableEntry = document.createElement("tr")
+                const newCheckBox = document.createElement("td")
+                const newFileName = document.createElement("td")
+                const newFileLastMod = document.createElement("td")
+                const newFileSize = document.createElement("td")
 
-            //     newCheckBox.innerHTML = '<input type="checkbox" id="fileSelect" name="fileSelect" value="' + file.name + '">'
-            //     const nameContent = document.createTextNode(file.name)
-            //     const lastModContent = document.createTextNode(file.last_modified)
-            //     const sizeContent = document.createTextNode(file.size + " B")
+                newCheckBox.innerHTML = '<input type="checkbox" id="fileSelect" name="fileSelect" value="' + file.name + '">'
+                const nameContent = document.createTextNode(file.name)
+                const lastModContent = document.createTextNode(file.last_modified)
+                const sizeContent = document.createTextNode(file.size + " B")
 
-            //     newFileName.appendChild(nameContent)
-            //     newFileLastMod.appendChild(lastModContent)
-            //     newFileSize.appendChild(sizeContent)
+                newFileName.appendChild(nameContent)
+                newFileLastMod.appendChild(lastModContent)
+                newFileSize.appendChild(sizeContent)
                 
-            //     newTableEntry.appendChild(newCheckBox)
-            //     newTableEntry.appendChild(newFileName)
-            //     newTableEntry.appendChild(newFileLastMod)
-            //     newTableEntry.appendChild(newFileSize)
+                newTableEntry.appendChild(newCheckBox)
+                newTableEntry.appendChild(newFileName)
+                newTableEntry.appendChild(newFileLastMod)
+                newTableEntry.appendChild(newFileSize)
                 
-            //     $('#srcTable').append(newTableEntry)
-                // console.log(file.name)
-            // })
-
-            console.log(data)
-            // data.files.forEach(file => {
-            const newTableEntry = document.createElement("tr")
-            const newCheckBox = document.createElement("td")
-            const newFileName = document.createElement("td")
-            const newFileLastMod = document.createElement("td")
-            const newFileSize = document.createElement("td")
-
-            newCheckBox.innerHTML = '<input type="checkbox" id="fileSelect" name="fileSelect" value="' + data + '">'
-            const nameContent = document.createTextNode(data.files)
-            const lastModContent = document.createTextNode(null)
-            const sizeContent = document.createTextNode(null)
-        
-            newFileName.appendChild(nameContent)
-            newFileLastMod.appendChild(lastModContent)
-            newFileSize.appendChild(sizeContent)
-            
-            newTableEntry.appendChild(newCheckBox)
-            newTableEntry.appendChild(newFileName)
-            newTableEntry.appendChild(newFileLastMod)
-            newTableEntry.appendChild(newFileSize)
-            
-            $('#srcTable').append(newTableEntry)
-
-            // })
-            
+                $('#srcTable').append(newTableEntry)
+                console.log(file.name)
+            })
             $('#srcFileDisplay').show()             
         });
         event.preventDefault()
@@ -82,62 +57,35 @@ $(document).ready(function() {
             const tableData = document.getElementById("destTable")
             tableData.textContent = ''
 
-            // data.files.forEach(file => {
+            data.files.forEach(file => {
 
-            //     const newTableEntry = document.createElement("tr")
-            //     const newFileName = document.createElement("td")
-            //     const newFileLastMod = document.createElement("td")
-            //     const newFileSize = document.createElement("td")
-            //     const newBlank = document.createElement("td")
+                const newTableEntry = document.createElement("tr")
+                const newFileName = document.createElement("td")
+                const newFileLastMod = document.createElement("td")
+                const newFileSize = document.createElement("td")
+                const newBlank = document.createElement("td")
 
-            //     const nameContent = document.createTextNode(file.name)
-            //     const lastModContent = document.createTextNode(file.last_modified)
-            //     const sizeContent = document.createTextNode(file.size + " B")
+                const nameContent = document.createTextNode(file.name)
+                const lastModContent = document.createTextNode(file.last_modified)
+                const sizeContent = document.createTextNode(file.size + " B")
 
-            //     newFileName.appendChild(nameContent)
-            //     newFileLastMod.appendChild(lastModContent)
-            //     newFileSize.appendChild(sizeContent)
+                newFileName.appendChild(nameContent)
+                newFileLastMod.appendChild(lastModContent)
+                newFileSize.appendChild(sizeContent)
                 
-            //     newTableEntry.appendChild(newBlank)
-            //     newTableEntry.appendChild(newFileName)
-            //     newTableEntry.appendChild(newFileLastMod)
-            //     newTableEntry.appendChild(newFileSize)
+                newTableEntry.appendChild(newBlank)
+                newTableEntry.appendChild(newFileName)
+                newTableEntry.appendChild(newFileLastMod)
+                newTableEntry.appendChild(newFileSize)
                 
-            //     $('#destTable').append(newTableEntry)
-            //     // console.log(file.name)
-            // })
-
-            console.log(data)
-            // data.files.forEach(file => {
-            const newTableEntry = document.createElement("tr")
-            const newCheckBox = document.createElement("td")
-            const newFileName = document.createElement("td")
-            const newFileLastMod = document.createElement("td")
-            const newFileSize = document.createElement("td")
-
-            newCheckBox.innerHTML = '<input type="checkbox" id="fileSelect" name="fileSelect" value="' + data + '">'
-            const nameContent = document.createTextNode(data.files)
-            const lastModContent = document.createTextNode(null)
-            const sizeContent = document.createTextNode(null)
-        
-            newFileName.appendChild(nameContent)
-            newFileLastMod.appendChild(lastModContent)
-            newFileSize.appendChild(sizeContent)
-            
-            newTableEntry.appendChild(newCheckBox)
-            newTableEntry.appendChild(newFileName)
-            newTableEntry.appendChild(newFileLastMod)
-            newTableEntry.appendChild(newFileSize)
-            
-            $('#destTable').append(newTableEntry)
-
-            // })
-
+                $('#destTable').append(newTableEntry)
+            })
             $('#destFileDisplay').show()
         });
         event.preventDefault()
     });
 
+    // Transfer Files
     $('#transferFilesForm').submit(function(event) {
         let checkboxes = document.querySelectorAll('input[name="fileSelect"]:checked');
         let values = [];
@@ -164,7 +112,7 @@ $(document).ready(function() {
         event.preventDefault()
     });
 
-    // srcIP
+    // Site1 IP
     $('#site1_IP_form').on('submit', function(event) {
         console.log("calling js")
         $.ajax({
@@ -179,22 +127,14 @@ $(document).ready(function() {
 
             if (!data.is_valid_ip) {
                 alert("IP not found in database")
-                const site1_details = document.getElementById("site1_details")
-                const newP = document.createElement("p")
-                newP.append("Invalid IP Address")
-                site1_details.replaceChildren(newP)
             } else {
-                const site1_details = document.getElementById("site1_details")
-                const newP = document.createElement("p")
-                newP.append("Valid IP Address")
-                site1_details.replaceChildren(newP)
+                $('#srcForm').show() 
             }
         })
         event.preventDefault()
-
     });
 
-    // destIP
+    // Site2 IP
     $('#site2_IP_form').on('submit', function(event) {
         console.log("calling js")
         $.ajax({
@@ -209,19 +149,11 @@ $(document).ready(function() {
 
             if (!data.is_valid_ip) {
                 alert("IP not found in database")
-                const site2_details = document.getElementById("site2_details")
-                const newP = document.createElement("p")
-                newP.append("Invalid IP Address")
-                site2_details.replaceChildren(newP)
             } else {
-                const site2_details = document.getElementById("site2_details")
-                const newP = document.createElement("p")
-                newP.append("Valid IP Address")
-                site2_details.replaceChildren(newP)
+                $('#destForm').show() 
             }
         })
         event.preventDefault()
-
     });
 
 })

@@ -68,6 +68,7 @@ auth = OIDCAuthentication({
     }, app)
 
 # Create thread to handle manage_connections
+# Falcon WS listens to online Falcon Nodes on startup
 daemon = Thread(
     target=rmq.manage_connections, daemon=True, name=f"manage_falcon_connections"
 )
@@ -76,6 +77,8 @@ daemon.start()
 @app.route("/")
 def home():
     print(session)
+    
+
     return render_template(
         "home.html",
         session=session,
@@ -120,14 +123,6 @@ def login():
 
     print(f'Logged in as {session["user_info"]["full_name"]}')
     print(session["user_info"])
-
-    # payload = {
-    #     "access_token": session["access_token"],
-    #     "id_token_jwt": session["id_token_jwt"]    
-    # }
-
-    # node_id = "1234"
-    # rmq.send_access_token(node_id, payload)
 
     return redirect(url_for("dashboard"))
 
@@ -205,12 +200,13 @@ def history():
 @app.route('/site1_ip', methods=['POST'])
 def site1_ip():
     site1_ip = request.form["site1_IP"]
-    
+
     # verify ip_idp mapping and set session variables
     if idp_ips.count_documents({"idp": session["site1_info"]["idp_name"], "ips": {"$in": [site1_ip]}}) != 0:
         print("Valid IP address")
         isValidIP = True
         session["site1_info"]["valid_ip"] = True
+        session["site1_info"]["ip_address"] = site1_ip
 
         # Send id_token_jwt to Falcon Node for verification
         payload = {
@@ -226,6 +222,8 @@ def site1_ip():
         print("Invalid IP address")
         isValidIP = False    
         session["site1_info"]["valid_ip"] = False
+        session["site1_info"]["ip_address"] = None
+
 
     return jsonify({'is_valid_ip': isValidIP})
 
@@ -239,6 +237,8 @@ def site2_ip():
         print("Valid IP address")
         isValidIP = True
         session["site2_info"]["valid_ip"] = True
+        session["site2_info"]["ip_address"] = site2_ip
+
 
         # Send id_token_jwt to Falcon Node for verification
         payload = {
@@ -254,24 +254,27 @@ def site2_ip():
         print("Invalid IP address")
         isValidIP = False    
         session["site2_info"]["valid_ip"] = False
+        session["site2_info"]["ip_address"] = None
 
     return jsonify({'is_valid_ip': isValidIP})
 
 
-
 @app.route('/updateSrc', methods=['POST'])
 def updateSrc():
+    site1_IP = session["site1_info"]["ip_address"]
+    site1_path = request.form["srcPath"]
 
-    srcIP = request.form["srcIP"]
-    srcPath = request.form["srcPath"]
-
-    if srcIP and srcPath:
-        
+    if site1_IP and site1_path:
         print("Sending request ...")
-        directory = "/home"
-        node_id = "1234"
-        srcFiles = rmq.send_request(node_id, "list", srcPath)
 
+        # Handle multiple users with different threads?
+        # daemon = Thread(
+        #     target=rmq.make_request, args=(site1_IP, "list", site1_path), 
+        #     daemon=True, name=f"{site1_IP}_list_request"
+        # )
+        # daemon.start()
+        site1_files = rmq.make_request(site1_IP, "list", site1_path)
+        print(site1_files)
 
         # topic = "ls_src"
         # IP_addr = f'IP Address: {srcIP}'
@@ -283,42 +286,42 @@ def updateSrc():
         # print("Received reply %s" % message)
         # srcFiles = getFiles(srcCollection, srcPath)
     else:
-        srcFiles = []
+        site1_files = []
 
-    # print(srcFiles)
-
-    # return jsonify({'files': srcFiles["DATA"]})
-    return jsonify({'files': srcFiles})
+    return jsonify({'files': site1_files["DATA"]})
 
 
 @app.route('/updateDest', methods=['POST'])
 def updateDest():
 
-    destIP = request.form["destIP"]
-    destPath = request.form["destPath"]
+    site2_IP = session["site2_info"]["ip_address"]
+    site2_path = request.form["destPath"]
 
-    if destIP and destPath:
-        # topic = "ls_dest"
-        # IP_addr = f'IP Address: {destIP}'
-        # file_path = f'Path: {destPath}'
+    if site2_IP and site2_path:
+        print("Sending request ...")
 
-        # print("Sending request ...")
+        # Handle multiple users with different threads?
+        # daemon = Thread(
+        #     target=rmq.make_request, args=(site2_IP, "list", site2_path), 
+        #     daemon=True, name=f"{site2_IP}_list_request"
+        # )
+        # daemon.start()
+        site2_files = rmq.make_request(site2_IP, "list", site2_path)
+        print(site2_files)
+
+        # topic = "ls_src"
+        # IP_addr = f'IP Address: {srcIP}'
+        # file_path = f'Path: {srcPath}'
+
         # socket.send_string("%s\n%s\n%s" % (topic, IP_addr, file_path))
 
-        # destFiles = socket.recv_json()
+        # srcFiles = socket.recv_json()
         # print("Received reply %s" % message)
         # srcFiles = getFiles(srcCollection, srcPath)
-
-        print("Sending request ...")
-        directory = "/home"
-        node_id = "1234"
-        destFiles = rmq.send_request(node_id, "list", destPath)
     else:
-        destFiles = []
+        site2_files = []
 
-    # return jsonify({'files': destFiles["DATA"]})
-    return jsonify({'files': destFiles})
-
+    return jsonify({'files': site2_files["DATA"]})
 
 @app.route('/transferFiles', methods=['POST', 'GET'])
 def transferFiles():
