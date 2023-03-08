@@ -131,12 +131,23 @@
                 {% if not site1_info["id_token_jwt"] %}
                     <a class="btn btn-info m-3" href="{{ url_for('loginSite1') }}">Site 1 Login</a>
                 {% else %}
-                    <p>{{ site1_info["idp_name"] }}</p>
-                    <form action="#" method="post" id="site1_IP_form">
-                        <input class="flex-grow-1 mb-3" type="text" name="site1_IP" id="site1_IP_input"
-                        placeholder="IP Address" required/>
-                        <input type="submit" value="Enter IP" id="site1_IP_submit" />
-                    </form>
+                    <div class="mb-3" align="center">
+                        <p>{{ site1_info["idp_name"] }}</p>
+                        <form action="#" method="post" id="site1_IP_form">
+                            <!-- Select dropdown for IPs -->
+                            <div class="input-group">
+                                <select class="form-select" aria-label="Default select example" name="site1_IP" id="site1_IP_input">
+                                    <option selected>Select IP Address</option>
+                                    {% for ip in site1_info["ips"] %}
+                                        <option value="{{ ip }}">{{ ip }}</option>                            
+                                    {% endfor %}
+                                </select>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="submit" id="site1_IP_submit">Enter</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
                     <!-- display if ip valid [TEMPORARY] -->
                     <div class="container" id="site1_details"></div>
@@ -214,12 +225,23 @@
                 {% if not site2_info["id_token_jwt"] %}
                     <a class="btn btn-info m-3" href="{{ url_for('loginSite2') }}">Site 2 Login</a>
                 {% else %}
-                    <p>{{ site2_info["idp_name"] }}</p>
-                    <form action="#" method="post" id="site2_IP_form">
-                        <input class="flex-grow-1 mb-3" type="text" name="site1_IP" id="site2_IP_input"
-                        placeholder="IP Address" required/>
-                        <input type="submit" value="Enter IP" id="site2_IP_submit" />
-                    </form>
+                    <div class="mb-3" align="center">
+                        <p>{{ site2_info["idp_name"] }}</p>
+                        <form action="#" method="post" id="site2_IP_form">
+                            <div class="input-group">
+                                <!-- Select dropdown for IPs -->
+                                <select class="form-select" aria-label="Default select example" name="site2_IP" id="site2_IP_input">
+                                    <option selected>Select IP Address</option>
+                                    {% for ip in site2_info["ips"] %}
+                                        <option value="{{ ip }}">{{ ip }}</option>                            
+                                    {% endfor %}
+                                </select>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="submit" id="site2_IP_submit">Enter</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
                     <!-- display if ip valid [TEMPORARY] -->
                     <div class="container" id="site2_details"></div>

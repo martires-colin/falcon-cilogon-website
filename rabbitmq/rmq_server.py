@@ -80,8 +80,6 @@ def manage_connections():
 def log_connection(ch, method, props, body):
     connection_message = json.loads(body.decode())
 
-    # If node exists, make updates to db object, else, make new db object
-
     if connection_message["status"] == "online":
         # TODO: log connection
         # add IP address that node sends on startup to db

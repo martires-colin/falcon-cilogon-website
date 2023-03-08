@@ -130,12 +130,19 @@ def login():
 @app.route("/loginSite1")
 @auth.oidc_auth('Site1')
 def loginSite1():
+
+    # retrieve IPs from mongoDB
+    site1_ips = None
+    for x in idp_ips.find({"idp": session["userinfo"]["idp_name"]}, {"ips": 1}):
+        site1_ips = x["ips"]
+    
     session['site1_info'] = {
         "full_name": session["userinfo"]["name"],
         "email": session["userinfo"]["email"],
         "idp_name": session["userinfo"]["idp_name"],
         "access_token": session["access_token"],
-        "id_token_jwt": session["id_token_jwt"]
+        "id_token_jwt": session["id_token_jwt"],
+        "ips": site1_ips
     }
     print(f'Site 1 Info\n{session["site1_info"]}')
 
@@ -145,12 +152,19 @@ def loginSite1():
 @app.route("/loginSite2")
 @auth.oidc_auth('Site2')
 def loginSite2():
+
+    # retrieve IPs from mongoDB
+    site2_ips = None
+    for x in idp_ips.find({"idp": session["userinfo"]["idp_name"]}, {"ips": 1}):
+        site2_ips = x["ips"]
+
     session['site2_info'] = {
         "full_name": session["userinfo"]["name"],
         "email": session["userinfo"]["email"],
         "idp_name": session["userinfo"]["idp_name"],
         "access_token": session["access_token"],
-        "id_token_jwt": session["id_token_jwt"]
+        "id_token_jwt": session["id_token_jwt"],
+        "ips": site2_ips
     }
     print(f'Site 2 Info\n{session["site2_info"]}')
 
