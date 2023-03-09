@@ -95,9 +95,9 @@ $(document).ready(function() {
         
         $.ajax({
             data: {
-                srcIP: $('#srcIPInput').val(),
+                site1_IP: $('#site1_IP_input').val(),
                 srcPath: $('#srcPathInput').val(),
-                destIP: $('#destIPInput').val(),
+                site2_IP: $('#site2_IP_input').val(),
                 destPath: $('#destPathInput').val(),
                 selectedFiles: values
             },
@@ -106,7 +106,7 @@ $(document).ready(function() {
         })
         .done(function(data) {
             console.log(data)
-            location.href = "/history"
+            // location.href = "/history"
         });
         
         event.preventDefault()

@@ -340,9 +340,9 @@ def updateDest():
 @app.route('/transferFiles', methods=['POST', 'GET'])
 def transferFiles():
 
-    srcIP = request.form["srcIP"]
+    srcIP = request.form["site1_IP"]
     srcPath = request.form["srcPath"]
-    destIP = request.form["destIP"]
+    destIP = request.form["site2_IP"]
     destPath = request.form["destPath"]
     selectedFiles = request.form.getlist("selectedFiles[]")
 
@@ -353,36 +353,50 @@ def transferFiles():
     dest_path = f'Destination File Path: {destPath}'
 
     print("Sending request ...")
-    socket.send_string("%s\n%s\n%s\n%s\n%s" % (topic, src_IP_addr, src_path, dest_IP_addr, dest_path))
+    # socket.send_string("%s\n%s\n%s\n%s\n%s" % (topic, src_IP_addr, src_path, dest_IP_addr, dest_path))
 
-    transfer_status = socket.recv_string()
-    print(transfer_status)
-    file_data = jsonify({'data': selectedFiles})
+    # transfer_status = socket.recv_string()
+    # print(transfer_status)
+    # file_data = jsonify({'data': selectedFiles})
 
-    epochTime = datetime.datetime.now().timestamp()
-    requestTime = datetime.datetime.now().strftime("%m/%d/%Y, %I:%M %p")
+    # epochTime = datetime.datetime.now().timestamp()
+    # requestTime = datetime.datetime.now().strftime("%m/%d/%Y, %I:%M %p")
 
-    post = {
-        "user": session.get("user")["userinfo"]["name"],
-        "user_email": session.get("user")["userinfo"]["email"],
-        "affiliation": session.get("user")["userinfo"]["https://cilogon.org/idp_name"],
-        "srcIP": srcIP,
-        "srcPath": srcPath,
-        "destIP": destIP,
-        "destPath": destPath,
-        "selectedFiles": selectedFiles,
-        "epochTime":  epochTime,
-        "requestTime": requestTime,
-        "completionTime": "12345 [temp val]",
-        "transferDuration": "12345 [temp val]",
-        "transferStatus": "In Progress [temp val]"
-        }
+    # post = {
+    #     "user": session.get("user")["userinfo"]["name"],
+    #     "user_email": session.get("user")["userinfo"]["email"],
+    #     "affiliation": session.get("user")["userinfo"]["https://cilogon.org/idp_name"],
+    #     "srcIP": srcIP,
+    #     "srcPath": srcPath,
+    #     "destIP": destIP,
+    #     "destPath": destPath,
+    #     "selectedFiles": selectedFiles,
+    #     "epochTime":  epochTime,
+    #     "requestTime": requestTime,
+    #     "completionTime": "12345 [temp val]",
+    #     "transferDuration": "12345 [temp val]",
+    #     "transferStatus": "In Progress [temp val]"
+    #     }
 
     # cloud MongoDB
     # collection.insert_one(post)
-    l_transfer_data.insert_one(post)
+    # l_transfer_data.insert_one(post)
 
-    return file_data
+    # return file_data
+
+    # -----------------new stuff----------------------
+
+    payload = {
+        "sender_ip": srcIP,
+        "receiver_ip": destIP,
+        "file_list": selectedFiles
+    }
+    print(payload)
+    status = rmq.make_request(payload["sender_ip"], "transfer", payload["receiver_ip"], payload["file_list"])
+    print(status)
+
+    return jsonify({'data': payload, 'status': status})
+
     
 
 if __name__ == "__main__":

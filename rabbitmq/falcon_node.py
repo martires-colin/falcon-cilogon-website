@@ -1,5 +1,6 @@
 # RabbitMQ communication for Falcon node
 
+
 from config_rabbitmq import configurations
 from threading import Thread
 import requests
@@ -20,10 +21,11 @@ parameters = pika.ConnectionParameters(
     virtual_host=configurations["vhost"], credentials=credentials
 )
 
-ip = "1.2.3.4" #requests.get('https://checkip.amazonaws.com').text.strip()
+ip = requests.get('https://checkip.amazonaws.com').text.strip()
 
 
 class Consumer:
+
     def __init__(self):
         self.verified = "-1"
 
@@ -68,16 +70,24 @@ class Consumer:
         
 
     def verify_connection(self, access_token):
-        access_token = json.loads(access_token)
-        id_token_jwt = jwt.decode(
-            access_token["id_token_jwt"], options={"verify_signature": False}
-        )
+        try:
+            token = json.loads(access_token)["id_token_jwt"]
+            unvalidated = jwt.decode(token, options={"verify_signature": False})
+            well_known_url = unvalidated["iss"] + "/.well-known/openid-configuration"
+            aud = unvalidated["aud"]
 
-        # TODO: verify jwt
+            jwks_url = json.loads(requests.get(well_known_url).text.strip())["jwks_uri"]
+            jwks_client = jwt.PyJWKClient(jwks_url)
+            header = jwt.get_unverified_header(token)
+            key = jwks_client.get_signing_key(header["kid"]).key
 
-        self.verified = "0"
-        if self.verified != "0":
-            pass # TODO: handle failed verification
+            decoded = jwt.decode(token, key, audience=aud, algorithms=[header["alg"]])
+            self.verified = "0"
+
+        except:
+            # TODO: handle failed verification
+            print(" [x] Connection with Falcon server could not be verified.")
+            self.verified = "0"
 
         return json.dumps({"verification_result": self.verified})
             
@@ -123,12 +133,18 @@ class Consumer:
     def transfer_files(self, receiver_ip, files):
         print(f" [x] Initiating transfer to {receiver_ip}")
 
+        files = json.loads(files)
+        root = files["path"]
         all_files = []
-        for file in files.split(","):
-            for dirpath, dirnames, filenames in os.walk(file):
-                for filename in filenames:
-                    all_files.append(os.path.join(dirpath, filename))
-
+        for file in files["DATA"]:
+            file_path = os.path.join(root, file["name"])
+            if file["type"] == "file":
+                all_files.append(file_path)
+            else:
+                for dirpath, dirnames, filenames in os.walk(file_path):
+                    for filename in filenames:
+                        all_files.append(os.path.join(dirpath, filename))
+            
         time.sleep(5) # TODO: start file transfer
 
         return json.dumps({"transfer_result": "0"}) # TODO: generate response
@@ -166,5 +182,6 @@ if __name__ == '__main__':
         
 
     except KeyboardInterrupt:
+        connection.close()
         print(" [x] Falcon node was interrupted.")
         sys.exit(0)
