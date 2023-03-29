@@ -6,7 +6,8 @@ from os import environ as env
 from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
-from pymongo import MongoClient
+# from pymongo import MongoClient
+from mongodb.mongo_config import *
 from flask import Flask, redirect, render_template, session, url_for, request, jsonify
 from flask_session import Session
 
@@ -24,10 +25,10 @@ if ENV_FILE:
     load_dotenv(ENV_FILE)
 
 # Connect to local MongoDB database
-db_client = MongoClient('localhost', 27017)
-db = db_client.falcon_db
-l_transfer_data = db.l_transfer_data
-idp_ips = db.idp_ips
+# db_client = MongoClient('localhost', 27017)
+# db = db_client.falcon_db
+# l_transfer_data = db.l_transfer_data
+# idp_ips = db.idp_ips
 
 app = Flask(__name__)
 app.config.update(
@@ -76,14 +77,13 @@ daemon.start()
 
 @app.route("/")
 def home():
-    print(session)
-    
-
+    print(session)  
     return render_template(
         "home.html",
         session=session,
         page="Dashboard"
     )
+
 
 @app.route("/dashboard")
 def dashboard():

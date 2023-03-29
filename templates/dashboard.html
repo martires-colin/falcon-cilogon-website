@@ -120,10 +120,6 @@
         {% endif %}
 
 
-
-
- 
-
         <!-- Source -->
         <div class="container col-md-5 order-md-1" id="sourceContent">
             <div class="d-flex flex-column">
@@ -139,7 +135,11 @@
                                 <select class="form-select" aria-label="Default select example" name="site1_IP" id="site1_IP_input">
                                     <option selected>Select IP Address</option>
                                     {% for ip in site1_info["ips"] %}
-                                        <option value="{{ ip }}">{{ ip }}</option>                            
+                                        {% if ip["status"] == "offline" %}
+                                            <option value="{{ ip }}" disabled>{{ ip["ip"] }}</option>                            
+                                        {% else %}
+                                            <option value="{{ ip }}">{{ ip["ip"] }}</option>                            
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                                 <div class="input-group-append">
@@ -219,6 +219,7 @@
             </div> -->
         </div> 
 
+        <!-- Destination -->
         <div class="container col-md-5 order-md-3" id="destContent">
             <div class="d-flex flex-column">
                 <h3 class="text-center">Site 2</h3>
@@ -233,7 +234,11 @@
                                 <select class="form-select" aria-label="Default select example" name="site2_IP" id="site2_IP_input">
                                     <option selected>Select IP Address</option>
                                     {% for ip in site2_info["ips"] %}
-                                        <option value="{{ ip }}">{{ ip }}</option>                            
+                                        {% if ip["status"] == "offline" %}
+                                            <option value="{{ ip }}" disabled>{{ ip["ip"] }}</option>                            
+                                        {% else %}
+                                            <option value="{{ ip }}">{{ ip["ip"] }}</option>                            
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                                 <div class="input-group-append">
