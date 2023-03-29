@@ -136,9 +136,9 @@
                                     <option selected>Select IP Address</option>
                                     {% for ip in site1_info["ips"] %}
                                         {% if ip["status"] == "offline" %}
-                                            <option value="{{ ip }}" disabled>{{ ip["ip"] }}</option>                            
+                                            <option value="{{ ip['ip'] }}" disabled>{{ ip["ip"] }}</option>                            
                                         {% else %}
-                                            <option value="{{ ip }}">{{ ip["ip"] }}</option>                            
+                                            <option value="{{ ip['ip'] }}">{{ ip["ip"] }}</option>                            
                                         {% endif %}
                                     {% endfor %}
                                 </select>
@@ -235,9 +235,9 @@
                                     <option selected>Select IP Address</option>
                                     {% for ip in site2_info["ips"] %}
                                         {% if ip["status"] == "offline" %}
-                                            <option value="{{ ip }}" disabled>{{ ip["ip"] }}</option>                            
+                                            <option value="{{ ip['ip'] }}" disabled>{{ ip["ip"] }}</option>                            
                                         {% else %}
-                                            <option value="{{ ip }}">{{ ip["ip"] }}</option>                            
+                                            <option value="{{ ip['ip'] }}">{{ ip["ip"] }}</option>                            
                                         {% endif %}
                                     {% endfor %}
                                 </select>

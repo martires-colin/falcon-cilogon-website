@@ -142,4 +142,4 @@ def on_connection(ch, method, props, body):
 def update_database(node_ip: str, status: str):
     # TODO update database (for Colin)
     print(f"Updating: {node_ip}\nNew Status: {status}")
-    idp_ips.update_one({})
+    idp_ips.update_many({"ip": node_ip}, {"$set": {"status": status}})

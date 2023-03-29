@@ -6,7 +6,6 @@ from os import environ as env
 from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
-# from pymongo import MongoClient
 from mongodb.mongo_config import *
 from flask import Flask, redirect, render_template, session, url_for, request, jsonify
 from flask_session import Session
@@ -23,12 +22,6 @@ from threading import Thread
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
-
-# Connect to local MongoDB database
-# db_client = MongoClient('localhost', 27017)
-# db = db_client.falcon_db
-# l_transfer_data = db.l_transfer_data
-# idp_ips = db.idp_ips
 
 app = Flask(__name__)
 app.config.update(
@@ -132,9 +125,12 @@ def login():
 def loginSite1():
 
     # retrieve IPs from mongoDB
-    site1_ips = None
-    for x in idp_ips.find({"idp": session["userinfo"]["idp_name"]}, {"ips": 1}):
-        site1_ips = x["ips"]
+    site1_ips = []
+    for x in idp_ips.find({"idp": session["userinfo"]["idp_name"]}):
+        site1_ips.append({
+            "ip": x["ip"],
+            "status": x["status"]
+        })
     
     session['site1_info'] = {
         "full_name": session["userinfo"]["name"],
@@ -154,9 +150,12 @@ def loginSite1():
 def loginSite2():
 
     # retrieve IPs from mongoDB
-    site2_ips = None
-    for x in idp_ips.find({"idp": session["userinfo"]["idp_name"]}, {"ips": 1}):
-        site2_ips = x["ips"]
+    site2_ips = []
+    for x in idp_ips.find({"idp": session["userinfo"]["idp_name"]}):
+        site2_ips.append({
+            "ip": x["ip"],
+            "status": x["status"]
+        })
 
     session['site2_info'] = {
         "full_name": session["userinfo"]["name"],
@@ -216,7 +215,7 @@ def site1_ip():
     site1_ip = request.form["site1_IP"]
 
     # verify ip_idp mapping and set session variables
-    if idp_ips.count_documents({"idp": session["site1_info"]["idp_name"], "ips": {"$in": [site1_ip]}}) != 0:
+    if idp_ips.count_documents({"ip": site1_ip}) != 0:
         print("Valid IP address")
         isValidIP = True
         session["site1_info"]["valid_ip"] = True
@@ -248,7 +247,7 @@ def site2_ip():
     site2_ip = request.form["site2_IP"]
     
     # verify ip_idp mapping and set session variables
-    if idp_ips.count_documents({"idp": session["site2_info"]["idp_name"], "ips": {"$in": [site2_ip]}}) != 0:
+    if idp_ips.count_documents({"ip": site2_ip}) != 0:
         print("Valid IP address")
         isValidIP = True
         session["site2_info"]["valid_ip"] = True
