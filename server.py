@@ -228,10 +228,11 @@ def site1_ip():
             "id_token_jwt": session["site1_info"]["id_token_jwt"]   
         }
         daemon = Thread(
-            target=rmq.make_request, args=(site1_ip, "verify", json.dumps(payload)), 
+            target=rmq.verify, args=(site1_ip, payload), 
             daemon=True, name=f"{site1_ip}_send_jwt"
         )
         daemon.start()
+
     else:
         print("Invalid IP address")
         isValidIP = False    
@@ -260,7 +261,7 @@ def site2_ip():
             "id_token_jwt": session["site2_info"]["id_token_jwt"]   
         }
         daemon = Thread(
-            target=rmq.make_request, args=(site2_ip, "verify", json.dumps(payload)), 
+            target=rmq.verify, args=(site2_ip, payload), 
             daemon=True, name=f"{site2_ip}_send_jwt"
         )
         daemon.start()
@@ -287,7 +288,7 @@ def updateSrc():
         #     daemon=True, name=f"{site1_IP}_list_request"
         # )
         # daemon.start()
-        site1_files = rmq.make_request(site1_IP, "list", site1_path)
+        site1_files = rmq.list_directory(site1_IP, site1_path)
         print(site1_files)
 
         # topic = "ls_src"
@@ -320,7 +321,7 @@ def updateDest():
         #     daemon=True, name=f"{site2_IP}_list_request"
         # )
         # daemon.start()
-        site2_files = rmq.make_request(site2_IP, "list", site2_path)
+        site2_files = rmq.list_directory(site2_IP, site2_path)
         print(site2_files)
 
         # topic = "ls_src"
@@ -392,10 +393,11 @@ def transferFiles():
         "file_list": selectedFiles
     }
     print(payload)
-    status = rmq.make_request(payload["sender_ip"], "transfer", payload["receiver_ip"], payload["file_list"])
-    print(status)
+    # status = rmq.make_request(payload["sender_ip"], "transfer", payload["receiver_ip"], payload["file_list"])
+    rmq.transfer(payload["sender_ip"], payload["receiver_ip"], payload["file_list"])
 
-    return jsonify({'data': payload, 'status': status})
+
+    return jsonify({'data': payload})
 
     
 
